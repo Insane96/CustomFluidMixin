@@ -1,0 +1,37 @@
+[
+    {
+        "flowing": "#minecraft:lava",
+        "blocks_nearby": [
+            "#minecraft:diamond_block",
+            "minecraft:beacon",
+            "#minecraft:water"
+        ],
+        "result": {
+            "type": "block",
+            "block": "minecraft:diamond_ore"
+        }
+    },
+    {
+        "flowing": "#minecraft:lava",
+        "blocks_nearby": [
+            "minecraft:furnace",
+            "#minecraft:water"
+        ],
+        "result": {
+            "type": "explosion",
+            "power": "5"
+        }
+    },
+    {
+        "flowing": "#minecraft:lava",
+        "blocks_nearby": [
+            "minecraft:zombie_head",
+            "minecraft:soul_sand"
+        ],
+        "result": {
+            "type": "summon",
+            "entity": "minecraft_zombie",
+            "nbt": "{HandItems:[{id:\"minecraft_diamond_sword\",Count:1b},{}]}"
+        }
+    }
+]
