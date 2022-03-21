@@ -1,0 +1,11 @@
+{
+    "flowing": "#minecraft:water",
+    "blocks_nearby": [
+        "minecraft:obsidian",
+        "#minecraft:lava"
+    ],
+    "result": {
+        "type": "explosion",
+        "power": 1
+    }
+}

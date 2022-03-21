@@ -12,6 +12,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class CFMListener extends SimpleJsonResourceReloadListener {
@@ -33,6 +34,7 @@ public class CFMListener extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
 		CustomFluidMixin.LOGGER.info("Reloading Custom Fluid Mixin");
+        customFluidMixin.clear();
         for (Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
 			ResourceLocation name = entry.getKey();
 			String[] split = name.getPath().split("/");
@@ -54,5 +56,9 @@ public class CFMListener extends SimpleJsonResourceReloadListener {
 		}
 
 		CustomFluidMixin.LOGGER.info("{} Custom Fluid Mixins loaded!", this.customFluidMixin.size());
+    }
+
+    public Collection<CFM> getList() {
+        return customFluidMixin.values();
     }
 }

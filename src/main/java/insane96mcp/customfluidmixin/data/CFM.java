@@ -3,7 +3,11 @@ package insane96mcp.customfluidmixin.data;
 import com.google.gson.annotations.SerializedName;
 import insane96mcp.customfluidmixin.exception.JsonValidationException;
 import insane96mcp.insanelib.utils.IdTagMatcher;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -85,6 +89,20 @@ public class CFM {
                     throw new JsonValidationException("Not yet implemented");
                 }
             }
+        }
+
+        public void execute(Level level, BlockPos pos) {
+             switch (type) {
+                 case BLOCK -> {
+                     level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
+                 }
+                 case EXPLOSION -> {
+                     level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.AIR.defaultBlockState()));
+                     level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, Explosion.BlockInteraction.BREAK);
+                 }
+                 case SUMMON -> {
+                 }
+             }
         }
 
         public enum Type {
