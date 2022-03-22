@@ -1,7 +1,9 @@
 {
     "flowing": "#minecraft:lava",
     "blocks_nearby": [
-        "minecraft:"
+        "minecraft:wither_skeleton_skull",
+        "minecraft:creeper_head",
+        "minecraft:soul_sand"
     ],
     "result": {
         "type": "function",
