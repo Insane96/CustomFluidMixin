@@ -64,7 +64,7 @@ public class CFM {
 	}
 
 
-    public class MixinResult {
+    public static class MixinResult {
         public Type type;
         @SerializedName("block")
         private String _block;
