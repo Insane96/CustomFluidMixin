@@ -7,7 +7,6 @@
     ],
     "result": {
         "type": "function",
-        "function": "customfluidmixin:test_function",
-        "chance": 0.5
+        "function": "customfluidmixin:test_function"
     }
 }
