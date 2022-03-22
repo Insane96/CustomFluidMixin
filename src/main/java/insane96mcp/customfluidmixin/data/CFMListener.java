@@ -53,6 +53,9 @@ public class CFMListener extends SimpleJsonResourceReloadListener {
 			catch (JsonSyntaxException e) {
                 CustomFluidMixin.LOGGER.error("Parsing error loading Custom Fluid Mixin {}: {}", entry.getKey(), e.getMessage());
 			}
+			catch (Exception e) {
+                CustomFluidMixin.LOGGER.error("Failed loading Custom Fluid Mixin {}: {}", entry.getKey(), e.getMessage());
+			}
 		}
 
 		CustomFluidMixin.LOGGER.info("{} Custom Fluid Mixins loaded!", this.customFluidMixin.size());

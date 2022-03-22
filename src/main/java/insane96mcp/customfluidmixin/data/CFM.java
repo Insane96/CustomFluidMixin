@@ -4,10 +4,12 @@ import com.google.gson.annotations.SerializedName;
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.exception.JsonValidationException;
 import insane96mcp.insanelib.utils.IdTagMatcher;
+import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -16,13 +18,14 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CFM {
-    
+
     @SerializedName("flowing")
     private String _flowing;
     @SerializedName("blocks_nearby")
@@ -43,8 +46,9 @@ public class CFM {
         if (_blocksNearby == null)
             throw new JsonValidationException("Missing blocks_nearby");
         if (_blocksNearby.size() == 0 || _blocksNearby.size() > 4)
-            throw new JsonValidationException("Invalid blocks_nearby. There must be at least one block nearby and less than 5 blocks");
-        
+            throw new JsonValidationException(
+                    "Invalid blocks_nearby. There must be at least one block nearby and less than 5 blocks");
+
         blocksNearby = new ArrayList<>();
         for (String s : _blocksNearby) {
             IdTagMatcher idTagMatcher = IdTagMatcher.parseLine(s);
@@ -58,11 +62,11 @@ public class CFM {
         result.validate();
     }
 
-	@Override
-	public String toString() {
-		return String.format("CFM[flowing: %s, blocks_nearby: %s, result: %s]", this.flowing, this.blocksNearby, this.result);
-	}
-
+    @Override
+    public String toString() {
+        return String.format("CFM[flowing: %s, blocks_nearby: %s, result: %s]", this.flowing, this.blocksNearby,
+                this.result);
+    }
 
     public static class MixinResult {
         public Type type;
@@ -70,13 +74,18 @@ public class CFM {
         private String _block;
         @SerializedName("power")
         public Float explosionPower;
+        @SerializedName("fire")
+        public Boolean shouldGenerateFire;
         public String entity;
         @SerializedName("nbt")
         private String _nbt;
+        @SerializedName("function")
+        private String _function;
         public Float chance;
 
         public transient BlockState block;
         public transient CompoundTag nbt;
+        public transient CommandFunction.CacheableFunction function;
 
         public void validate() throws JsonValidationException {
             if (this.type == null)
@@ -94,6 +103,8 @@ public class CFM {
                 case EXPLOSION -> {
                     if (this.explosionPower == null)
                         throw new JsonValidationException("Missing power for explosion result");
+                    if (this.shouldGenerateFire == null)
+                        this.shouldGenerateFire = false;
                 }
                 case SUMMON -> {
                     if (this.entity == null)
@@ -101,11 +112,16 @@ public class CFM {
                     if (this._nbt != null) {
                         try {
                             nbt = TagParser.parseTag(this._nbt);
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             throw new JsonValidationException("Failed to parse nbt for summon result");
                         }
                     }
+                }
+                //TODO Test, if works remove Summon
+                case FUNCTION -> {
+                    if (this._function == null)
+                        throw new JsonValidationException("Missing function for function result");
+                    this.function = new CommandFunction.CacheableFunction(new ResourceLocation(this._function));
                 }
             }
 
@@ -118,35 +134,41 @@ public class CFM {
             if (level.getRandom().nextFloat() > this.chance)
                 return;
 
-             switch (type) {
-                 case BLOCK -> {
-                     level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
-                 }
-                 case EXPLOSION -> {
-                     level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, Explosion.BlockInteraction.BREAK);
-                 }
-                 case SUMMON -> {
-                     CompoundTag compoundTag = new CompoundTag();
-                     if (this.nbt != null)
-                         compoundTag = this.nbt.copy();
-                     compoundTag.putString("id", this.entity);
-                     Entity entity = EntityType.loadEntityRecursive(compoundTag, level, (e) -> {
-                         e.moveTo(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, e.getYRot(), e.getXRot());
-                         return e;
-                     });
-                     if (entity == null) {
-                         CustomFluidMixin.LOGGER.warn("Failed to create entity for Custom Fluid Mixin result");
-                         return;
-                     }
+            switch (type) {
+                case BLOCK -> {
+                    level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
+                }
+                case EXPLOSION -> {
+                    level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, this.shouldGenerateFire, Explosion.BlockInteraction.BREAK);
+                }
+                case SUMMON -> {
+                    CompoundTag compoundTag = new CompoundTag();
+                    if (this.nbt != null)
+                        compoundTag = this.nbt.copy();
+                    compoundTag.putString("id", this.entity);
+                    Entity entity = EntityType.loadEntityRecursive(compoundTag, level, (e) -> {
+                        e.moveTo(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, e.getYRot(), e.getXRot());
+                        return e;
+                    });
+                    if (entity == null) {
+                        CustomFluidMixin.LOGGER.warn("Failed to create entity for Custom Fluid Mixin result");
+                        return;
+                    }
 
-                     if (this.nbt != null && this.nbt.isEmpty() && entity instanceof Mob) {
-                         ((Mob)entity).finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.TRIGGERED, null, null);
-                     }
+                    if (this.nbt != null && this.nbt.isEmpty() && entity instanceof Mob) {
+                        ((Mob) entity).finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.TRIGGERED, null, null);
+                    }
 
-                     if (!level.tryAddFreshEntityWithPassengers(entity))
-                         CustomFluidMixin.LOGGER.warn("Failed to summon entity for Custom Fluid Mixin result");
-                 }
-             }
+                    if (!level.tryAddFreshEntityWithPassengers(entity))
+                        CustomFluidMixin.LOGGER.warn("Failed to summon entity for Custom Fluid Mixin result");
+                }
+                case FUNCTION -> {
+                    MinecraftServer server = level.getServer();
+                    this.function.get(server.getFunctions()).ifPresent((commandFunction) -> {
+                        server.getFunctions().execute(commandFunction, server.getFunctions().getGameLoopSender().withPosition(new Vec3(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d)).withLevel(level));
+                    });
+                }
+            }
         }
 
         public enum Type {
@@ -155,7 +177,9 @@ public class CFM {
             @SerializedName("explosion")
             EXPLOSION,
             @SerializedName("summon")
-            SUMMON
+            SUMMON,
+            @SerializedName("function")
+            FUNCTION
         }
     }
 }

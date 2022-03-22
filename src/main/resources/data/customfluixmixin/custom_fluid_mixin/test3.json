@@ -1,11 +1,11 @@
 {
     "flowing": "#minecraft:lava",
     "blocks_nearby": [
-        "minecraft:lightning_rod"
+        "minecraft:"
     ],
     "result": {
-        "type": "summon",
-        "chance": 0.25,
-        "entity": "minecraft:lightning_bolt"
+        "type": "function",
+        "function": "customfluidmixin:test_function",
+        "chance": 0.5
     }
 }
