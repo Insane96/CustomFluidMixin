@@ -1,12 +1,19 @@
 package insane96mcp.customfluidmixin.data;
 
 import com.google.gson.annotations.SerializedName;
+import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.exception.JsonValidationException;
 import insane96mcp.insanelib.utils.IdTagMatcher;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -64,34 +71,46 @@ public class CFM {
         @SerializedName("power")
         public Float explosionPower;
         public String entity;
-        public String nbt;
+        @SerializedName("nbt")
+        private String _nbt;
 
         public transient BlockState block;
+        public transient CompoundTag nbt;
 
         public void validate() throws JsonValidationException {
-            if (type == null)
+            if (this.type == null)
                 throw new JsonValidationException("Missing type for result");
 
-            switch (type) {
+            switch (this.type) {
                 case BLOCK -> {
-                    if (_block == null)
+                    if (this._block == null)
                         throw new JsonValidationException("Missing block for block result");
                     ResourceLocation blockRL = ResourceLocation.tryParse(_block);
                     if (blockRL == null)
                         throw new JsonValidationException("Invalid block for block result");
-                    block = ForgeRegistries.BLOCKS.getValue(blockRL).defaultBlockState();
+                    this.block = ForgeRegistries.BLOCKS.getValue(blockRL).defaultBlockState();
                 }
                 case EXPLOSION -> {
-                    if (explosionPower == null)
+                    if (this.explosionPower == null)
                         throw new JsonValidationException("Missing power for explosion result");
                 }
                 case SUMMON -> {
-                    throw new JsonValidationException("Not yet implemented");
+                    if (this.entity == null)
+                        throw new JsonValidationException("Missing entity for summon result");
+                    if (this._nbt != null) {
+                        nbt = new CompoundTag();
+                        try {
+                            nbt = TagParser.parseTag(this._nbt);
+                        }
+                        catch (Exception e) {
+                            throw new JsonValidationException("Failed to parse nbt for summon result");
+                        }
+                    }
                 }
             }
         }
 
-        public void execute(Level level, BlockPos pos) {
+        public void execute(ServerLevel level, BlockPos pos) {
              switch (type) {
                  case BLOCK -> {
                      level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
@@ -101,6 +120,24 @@ public class CFM {
                      level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, Explosion.BlockInteraction.BREAK);
                  }
                  case SUMMON -> {
+                     level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.AIR.defaultBlockState()));
+                     CompoundTag compoundTag = nbt.copy();
+                     compoundTag.putString("id", this.entity);
+                     Entity entity = EntityType.loadEntityRecursive(compoundTag, level, (e) -> {
+                         e.moveTo(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, e.getYRot(), e.getXRot());
+                         return e;
+                     });
+                     if (entity == null) {
+                         CustomFluidMixin.LOGGER.warn("Failed to create entity for Custom Fluid Mixin result");
+                         return;
+                     }
+
+                     if (this.nbt.isEmpty() && entity instanceof Mob) {
+                         ((Mob)entity).finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.TRIGGERED, null, null);
+                     }
+
+                     if (!level.tryAddFreshEntityWithPassengers(entity))
+                         CustomFluidMixin.LOGGER.warn("Failed to summon entity for Custom Fluid Mixin result");
                  }
              }
         }

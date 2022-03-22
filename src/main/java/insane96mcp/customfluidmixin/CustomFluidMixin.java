@@ -5,6 +5,7 @@ import insane96mcp.customfluidmixin.data.CFMListener;
 import insane96mcp.insanelib.utils.IdTagMatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
@@ -53,7 +54,7 @@ public class CustomFluidMixin
             if (!blocksNearbyMatch)
                 continue;
 
-            cfm.result.execute(level, pos);
+            cfm.result.execute((ServerLevel) level, pos);
             return true;
         }
         return false;

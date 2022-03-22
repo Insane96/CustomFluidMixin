@@ -6,7 +6,7 @@
     ],
     "result": {
         "type": "summon",
-        "entity": "minecraft_zombie",
-        "nbt": "{HandItems:[{id:\"minecraft_diamond_sword\",Count:1b},{}]}"
+        "entity": "minecraft:zombie",
+        "nbt": "{HandItems:[{id:\"minecraft:stone_axe\",Count:1b},{}]}"
     }
 }
