@@ -1,29 +1,21 @@
 package insane96mcp.customfluidmixin.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gson.annotations.SerializedName;
-
-import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.exception.JsonValidationException;
 import insane96mcp.insanelib.utils.IdTagMatcher;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CFM {
 
@@ -82,7 +74,6 @@ public class CFM {
         public Float explosionPower;
         @SerializedName("fire")
         public Boolean shouldGenerateFire;
-        public String entity;
         @SerializedName("nbt")
         private String _nbt;
         @SerializedName("function")
@@ -90,7 +81,6 @@ public class CFM {
         public Float chance;
 
         public transient BlockState block;
-        public transient CompoundTag nbt;
         public transient CommandFunction.CacheableFunction function;
 
         public void validate() throws JsonValidationException {
@@ -112,18 +102,6 @@ public class CFM {
                     if (this.shouldGenerateFire == null)
                         this.shouldGenerateFire = false;
                 }
-                case SUMMON -> {
-                    if (this.entity == null)
-                        throw new JsonValidationException("Missing entity for summon result");
-                    if (this._nbt != null) {
-                        try {
-                            nbt = TagParser.parseTag(this._nbt);
-                        } catch (Exception e) {
-                            throw new JsonValidationException("Failed to parse nbt for summon result");
-                        }
-                    }
-                }
-                //TODO Test, if works remove Summon
                 case FUNCTION -> {
                     if (this._function == null)
                         throw new JsonValidationException("Missing function for function result");
@@ -147,27 +125,6 @@ public class CFM {
                 case EXPLOSION -> {
                     level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, this.shouldGenerateFire, Explosion.BlockInteraction.BREAK);
                 }
-                case SUMMON -> {
-                    CompoundTag compoundTag = new CompoundTag();
-                    if (this.nbt != null)
-                        compoundTag = this.nbt.copy();
-                    compoundTag.putString("id", this.entity);
-                    Entity entity = EntityType.loadEntityRecursive(compoundTag, level, (e) -> {
-                        e.moveTo(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, e.getYRot(), e.getXRot());
-                        return e;
-                    });
-                    if (entity == null) {
-                        CustomFluidMixin.LOGGER.warn("Failed to create entity for Custom Fluid Mixin result");
-                        return;
-                    }
-
-                    if (this.nbt != null && this.nbt.isEmpty() && entity instanceof Mob) {
-                        ((Mob) entity).finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.TRIGGERED, null, null);
-                    }
-
-                    if (!level.tryAddFreshEntityWithPassengers(entity))
-                        CustomFluidMixin.LOGGER.warn("Failed to summon entity for Custom Fluid Mixin result");
-                }
                 case FUNCTION -> {
                     MinecraftServer server = level.getServer();
                     this.function.get(server.getFunctions()).ifPresent((commandFunction) -> {
@@ -182,8 +139,6 @@ public class CFM {
             BLOCK,
             @SerializedName("explosion")
             EXPLOSION,
-            @SerializedName("summon")
-            SUMMON,
             @SerializedName("function")
             FUNCTION
         }
