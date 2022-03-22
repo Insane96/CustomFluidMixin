@@ -1,6 +1,10 @@
 package insane96mcp.customfluidmixin.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.annotations.SerializedName;
+
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.exception.JsonValidationException;
 import insane96mcp.insanelib.utils.IdTagMatcher;
@@ -21,9 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CFM {
 
     @SerializedName("flowing")
@@ -32,6 +33,8 @@ public class CFM {
     private List<String> _blocksNearby;
 
     public MixinResult result;
+
+    public Boolean fizz;
 
     public transient IdTagMatcher flowing;
     public transient List<IdTagMatcher> blocksNearby;
@@ -60,6 +63,9 @@ public class CFM {
         if (result == null)
             throw new JsonValidationException("Missing result");
         result.validate();
+
+        if (this.fizz == null)
+            this.fizz = true;
     }
 
     @Override
