@@ -1,12 +1,11 @@
 {
     "flowing": "#minecraft:lava",
     "blocks_nearby": [
-        "minecraft:zombie_head",
-        "minecraft:soul_sand"
+        "minecraft:lightning_rod"
     ],
     "result": {
         "type": "summon",
-        "entity": "minecraft:zombie",
-        "nbt": "{HandItems:[{id:\"minecraft:stone_axe\",Count:1b},{}]}"
+        "chance": 0.25,
+        "entity": "minecraft:lightning_bolt"
     }
 }

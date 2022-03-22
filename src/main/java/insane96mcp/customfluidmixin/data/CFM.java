@@ -73,6 +73,7 @@ public class CFM {
         public String entity;
         @SerializedName("nbt")
         private String _nbt;
+        public Float chance;
 
         public transient BlockState block;
         public transient CompoundTag nbt;
@@ -98,7 +99,6 @@ public class CFM {
                     if (this.entity == null)
                         throw new JsonValidationException("Missing entity for summon result");
                     if (this._nbt != null) {
-                        nbt = new CompoundTag();
                         try {
                             nbt = TagParser.parseTag(this._nbt);
                         }
@@ -108,20 +108,27 @@ public class CFM {
                     }
                 }
             }
+
+            if (chance == null)
+                chance = 1f;
         }
 
         public void execute(ServerLevel level, BlockPos pos) {
+            level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.AIR.defaultBlockState()));
+            if (level.getRandom().nextFloat() > this.chance)
+                return;
+
              switch (type) {
                  case BLOCK -> {
                      level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
                  }
                  case EXPLOSION -> {
-                     level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.AIR.defaultBlockState()));
                      level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, Explosion.BlockInteraction.BREAK);
                  }
                  case SUMMON -> {
-                     level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.AIR.defaultBlockState()));
-                     CompoundTag compoundTag = nbt.copy();
+                     CompoundTag compoundTag = new CompoundTag();
+                     if (this.nbt != null)
+                         compoundTag = this.nbt.copy();
                      compoundTag.putString("id", this.entity);
                      Entity entity = EntityType.loadEntityRecursive(compoundTag, level, (e) -> {
                          e.moveTo(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, e.getYRot(), e.getXRot());
@@ -132,7 +139,7 @@ public class CFM {
                          return;
                      }
 
-                     if (this.nbt.isEmpty() && entity instanceof Mob) {
+                     if (this.nbt != null && this.nbt.isEmpty() && entity instanceof Mob) {
                          ((Mob)entity).finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.TRIGGERED, null, null);
                      }
 
