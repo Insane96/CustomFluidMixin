@@ -24,3 +24,9 @@ Modpack maker tool to make custom output when fluids flow (much like vanilla doe
     versionRange="[1.18.1,1.19)"
     ordering="NONE"
     side="BOTH"
+[[dependencies.customfluidmixin]]
+    modId="insanelib"
+    mandatory=true
+    versionRange="[1.4.3)"
+    ordering="NONE"
+    side="BOTH"
