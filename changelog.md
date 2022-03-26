@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.2
+* Fixed startup crash
+
 ## 1.0.1
 * Fixed missing InsaneLib dependency, crashing the game if the Lib was missing
 
