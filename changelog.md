@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.3
+* Port to 1.18.2
+
 ## 1.0.2
 * Fixed startup crash
 
