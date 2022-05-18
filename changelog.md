@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.4
+* Fixed mod requiring IguanaTweaks Reborn
+
 ## 1.0.3
 * Port to 1.18.2
 
