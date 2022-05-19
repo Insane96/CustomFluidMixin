@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class LiquidBlockMixin {
 
     @Inject(at = @At("HEAD"), method = "shouldSpreadLiquid(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z", cancellable = true)
-    private void reactWithNeighbors(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Boolean> callback) {
+    private void shouldSpreadLiquid(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Boolean> callback) {
         for (CFM cfm : CFMListener.INSTANCE.getList()) {
             if (!cfm.flowing.matchesFluid(state.getFluidState().getType()))
                 continue;
