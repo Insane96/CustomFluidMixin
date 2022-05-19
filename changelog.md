@@ -1,5 +1,8 @@
 # Changelog
 
+## Upcoming
+* Fixed wrong pack format
+
 ## 1.0.4
 * Fixed mod requiring IguanaTweaks Reborn
 
