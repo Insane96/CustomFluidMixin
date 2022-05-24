@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CFMCategory implements IRecipeCategory<CFM> {
@@ -72,7 +72,7 @@ public class CFMCategory implements IRecipeCategory<CFM> {
         List<List<ItemStack>> blocksNearby = recipe.getBlocksNearby();
         int catalysts = 0;
         for (List<ItemStack> blockNearby : blocksNearby) {
-            int x = 48 + (catalysts * 16) - (catalysts / 3 * 48);
+            int x = 54 + (catalysts * 16) - (catalysts / 3 * 48);
             int y = 11 + (catalysts / 3 * 16);
             if (blocksNearby.size() <= 3)
                 y += 6;
@@ -109,15 +109,18 @@ public class CFMCategory implements IRecipeCategory<CFM> {
 
     @Override
     public List<Component> getTooltipStrings(CFM recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+        ArrayList<Component> tooltips = new ArrayList<>();
         if (recipe.result.type == CFM.MixinResult.Type.EXPLOSION) {
             if (mouseX >= 137 && mouseX <= 161 && mouseY >= 22 && mouseY <= 30)
-                return Arrays.asList(new TranslatableComponent("jei.result.explosion.tooltip", recipe.result.explosionPower));
+                tooltips.add(new TranslatableComponent("jei.result.explosion.tooltip", recipe.result.explosionPower));
         }
         else if (recipe.result.type == CFM.MixinResult.Type.FUNCTION) {
             if (mouseX >= 140 && mouseX <= 159 && mouseY >= 22 && mouseY <= 29)
-                return Arrays.asList(new TranslatableComponent("jei.result.function.tooltip", recipe.result.function.getId()));
+                tooltips.add(new TranslatableComponent("jei.result.function.tooltip", recipe.result.function.getId()));
         }
-        return IRecipeCategory.super.getTooltipStrings(recipe, recipeSlotsView, mouseX, mouseY);
+        if (mouseX >= 29 && mouseX <= 42 && mouseY >= 21 && mouseY <= 28)
+            tooltips.add(new TranslatableComponent("jei.flowing_into"));
+        return tooltips;
     }
 
     @SuppressWarnings("removal")

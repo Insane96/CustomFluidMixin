@@ -1,5 +1,6 @@
 {
     "gui.jei.category.cfm": "Fluid Mixin",
+    "jei.flowing_into": "Flowing into",
     "jei.result.explosion": "BOOM",
     "jei.result.explosion.tooltip": "Explosion Power: %s",
     "jei.result.function": ".mcf",
