@@ -5,14 +5,20 @@ import insane96mcp.customfluidmixin.exception.JsonValidationException;
 import insane96mcp.insanelib.util.IdTagMatcher;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.tags.ITag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +64,67 @@ public class CFM {
 
         if (this.fizz == null)
             this.fizz = true;
+    }
+
+    public List<List<ItemStack>> getBlocksNearby() {
+        List<List<ItemStack>> r = new ArrayList<>();
+        for (IdTagMatcher idBlocksNearby : blocksNearby) {
+            r.add(getAllBlocksOrFluidsAsStacks(idBlocksNearby));
+        }
+        return r;
+    }
+
+    public List<ItemStack> getFlowingStacks() {
+        List<ItemStack> stacks = new ArrayList<>();
+        List<Fluid> fluids = this.getAllFluids();
+        for (Fluid fluid : fluids) {
+            ItemStack stack = new ItemStack(fluid.getBucket());
+            stacks.add(stack);
+        }
+        return stacks;
+    }
+
+    public List<ItemStack> getAllBlocksOrFluidsAsStacks(IdTagMatcher idTagMatcher) {
+        List<ItemStack> stacks = new ArrayList<>();
+        if (idTagMatcher.id != null) {
+            Block block = ForgeRegistries.BLOCKS.getValue(idTagMatcher.id);
+            if (block != null) {
+                stacks.add(new ItemStack(block));
+            }
+            else {
+                Fluid fluid = ForgeRegistries.FLUIDS.getValue(idTagMatcher.id);
+                stacks.add(new ItemStack(fluid.getBucket()));
+            }
+
+        }
+        else {
+            TagKey<Block> blockTagKey = TagKey.create(Registry.BLOCK_REGISTRY, idTagMatcher.tag);
+            TagKey<Fluid> fluidTagKey = TagKey.create(Registry.FLUID_REGISTRY, idTagMatcher.tag);
+            if (ForgeRegistries.BLOCKS.tags().isKnownTagName(blockTagKey)) {
+                ITag<Block> blockTag = ForgeRegistries.BLOCKS.tags().getTag(blockTagKey);
+                blockTag.stream().forEach(block -> stacks.add(new ItemStack(block)));
+            }
+            else {
+                ITag<Fluid> fluidITag = ForgeRegistries.FLUIDS.tags().getTag(fluidTagKey);
+                fluidITag.stream().forEach(fluid -> stacks.add(new ItemStack(fluid.getBucket())));
+            }
+        }
+        return stacks;
+    }
+
+    public List<Fluid> getAllFluids() {
+        List<Fluid> fluids = new ArrayList<>();
+        if (this.flowing.id != null) {
+            Fluid fluid = ForgeRegistries.FLUIDS.getValue(this.flowing.id);
+            if (fluid != null)
+                fluids.add(fluid);
+        }
+        else {
+            TagKey<Fluid> tagKey = TagKey.create(Registry.FLUID_REGISTRY, this.flowing.tag);
+            ITag<Fluid> blockTag = ForgeRegistries.FLUIDS.tags().getTag(tagKey);
+            fluids.addAll(blockTag.stream().toList());
+        }
+        return fluids;
     }
 
     @Override
