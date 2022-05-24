@@ -46,7 +46,7 @@ public class CFM {
 
         if (_blocksNearby == null)
             throw new JsonValidationException("Missing blocks_nearby");
-        if (_blocksNearby.size() == 0 || _blocksNearby.size() > 4)
+        if (_blocksNearby.size() == 0 || _blocksNearby.size() > 5)
             throw new JsonValidationException(
                     "Invalid blocks_nearby. There must be at least one block nearby and less than 5 blocks");
 
