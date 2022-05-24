@@ -3,7 +3,6 @@ package insane96mcp.customfluidmixin.integration.jei;
 import com.mojang.blaze3d.vertex.PoseStack;
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.data.CFM;
-import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -16,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.client.gui.GuiUtils;
 
 import java.util.ArrayList;
@@ -35,7 +33,7 @@ public class CFMCategory implements IRecipeCategory<CFM> {
     public CFMCategory(IGuiHelper guiHelper) {
         ResourceLocation location = Constants.JEI_GUI;
         background = guiHelper.createDrawable(location, 0, 0, width, height);
-        icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Items.LAVA_BUCKET));
+        icon = guiHelper.createDrawable(Constants.JEI_GUI, 32, 50, 16, 16);
         localizedName = new TranslatableComponent("gui.jei.category.cfm");
     }
 
@@ -94,14 +92,6 @@ public class CFMCategory implements IRecipeCategory<CFM> {
         int u = type.equals(CFM.MixinResult.Type.EXPLOSION) ? 0 : 16;
         int v = 50;
         GuiUtils.drawTexturedModalRect(poseStack, x, y, u, v, 16, 16, 0f);
-        /*int shadowColor = 0xFF000000 | (mainColor & 0xFCFCFC) >> 2;
-        int width = minecraft.font.width(text);
-
-        // TODO 1.13 match the new GuiRepair style
-        minecraft.font.draw(poseStack, text, x + 1, y, shadowColor);
-        minecraft.font.draw(poseStack, text, x, y + 1, shadowColor);
-        minecraft.font.draw(poseStack, text, x + 1, y + 1, shadowColor);
-        minecraft.font.draw(poseStack, text, x, y, mainColor);*/
     }
 
     @Override
