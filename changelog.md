@@ -1,6 +1,7 @@
 # Changelog
 
-## Upcoming
+## 1.1.0
+* Added JEI support!
 * Fixed wrong pack format
 
 ## 1.0.4

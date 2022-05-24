@@ -12,13 +12,12 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.client.gui.GuiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,10 +71,10 @@ public class CFMCategory implements IRecipeCategory<CFM> {
         List<List<ItemStack>> blocksNearby = recipe.getBlocksNearby();
         int catalysts = 0;
         for (List<ItemStack> blockNearby : blocksNearby) {
-            int x = 54 + (catalysts * 16) - (catalysts / 3 * 48);
-            int y = 11 + (catalysts / 3 * 16);
+            int x = 51 + (catalysts * 18) - (catalysts / 3 * 54);
+            int y = 8 + (catalysts / 3 * 18);
             if (blocksNearby.size() <= 3)
-                y += 6;
+                y += 8;
             builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
                     .addItemStacks(blockNearby);
             catalysts++;
@@ -84,39 +83,37 @@ public class CFMCategory implements IRecipeCategory<CFM> {
 
     @Override
     public void draw(CFM recipe, IRecipeSlotsView recipeSlotsView, PoseStack poseStack, double mouseX, double mouseY) {
-        if (recipe.result.type == CFM.MixinResult.Type.EXPLOSION) {
-            Minecraft minecraft = Minecraft.getInstance();
-            drawRepairCost(minecraft, poseStack, I18n.get("jei.result.explosion"), 0xFF32A852);
-        }
-        else if (recipe.result.type == CFM.MixinResult.Type.FUNCTION) {
-            Minecraft minecraft = Minecraft.getInstance();
-            drawRepairCost(minecraft, poseStack, I18n.get("jei.result.function"), 0xFFA7C425);
+        if (recipe.result.type != CFM.MixinResult.Type.BLOCK) {
+            drawRepairCost(poseStack, recipe.result.type);
         }
     }
 
-    private void drawRepairCost(Minecraft minecraft, PoseStack poseStack, String text, int mainColor) {
-        int shadowColor = 0xFF000000 | (mainColor & 0xFCFCFC) >> 2;
+    private void drawRepairCost(PoseStack poseStack, CFM.MixinResult.Type type) {
+        int x = 141;
+        int y = 18;
+        int u = type.equals(CFM.MixinResult.Type.EXPLOSION) ? 0 : 16;
+        int v = 50;
+        GuiUtils.drawTexturedModalRect(poseStack, x, y, u, v, 16, 16, 0f);
+        /*int shadowColor = 0xFF000000 | (mainColor & 0xFCFCFC) >> 2;
         int width = minecraft.font.width(text);
-        int x = background.getWidth() - 15 - width / 2;
-        int y = 22;
 
         // TODO 1.13 match the new GuiRepair style
         minecraft.font.draw(poseStack, text, x + 1, y, shadowColor);
         minecraft.font.draw(poseStack, text, x, y + 1, shadowColor);
         minecraft.font.draw(poseStack, text, x + 1, y + 1, shadowColor);
-        minecraft.font.draw(poseStack, text, x, y, mainColor);
+        minecraft.font.draw(poseStack, text, x, y, mainColor);*/
     }
 
     @Override
     public List<Component> getTooltipStrings(CFM recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
         ArrayList<Component> tooltips = new ArrayList<>();
-        if (recipe.result.type == CFM.MixinResult.Type.EXPLOSION) {
-            if (mouseX >= 137 && mouseX <= 161 && mouseY >= 22 && mouseY <= 30)
+        if (mouseX >= 141 && mouseX <= 157 && mouseY >= 18 && mouseY <= 34) {
+            if (recipe.result.type == CFM.MixinResult.Type.EXPLOSION) {
                 tooltips.add(new TranslatableComponent("jei.result.explosion.tooltip", recipe.result.explosionPower));
-        }
-        else if (recipe.result.type == CFM.MixinResult.Type.FUNCTION) {
-            if (mouseX >= 140 && mouseX <= 159 && mouseY >= 22 && mouseY <= 29)
+            }
+            else if (recipe.result.type == CFM.MixinResult.Type.FUNCTION) {
                 tooltips.add(new TranslatableComponent("jei.result.function.tooltip", recipe.result.function.getId()));
+            }
         }
         if (mouseX >= 29 && mouseX <= 42 && mouseY >= 21 && mouseY <= 28)
             tooltips.add(new TranslatableComponent("jei.flowing_into"));
