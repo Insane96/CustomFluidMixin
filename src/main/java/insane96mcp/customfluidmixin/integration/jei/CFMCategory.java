@@ -3,6 +3,8 @@ package insane96mcp.customfluidmixin.integration.jei;
 import com.mojang.blaze3d.vertex.PoseStack;
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.data.CFM;
+import insane96mcp.insanelib.util.IdTagMatcher;
+import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -34,7 +36,7 @@ public class CFMCategory implements IRecipeCategory<CFM> {
         ResourceLocation location = Constants.JEI_GUI;
         background = guiHelper.createDrawable(location, 0, 0, width, height);
         icon = guiHelper.createDrawable(Constants.JEI_GUI, 32, 50, 16, 16);
-        localizedName = new TranslatableComponent("gui.jei.category.cfm");
+        localizedName = new TranslatableComponent("jei.category.cfm");
     }
 
     @Override
@@ -60,21 +62,27 @@ public class CFMCategory implements IRecipeCategory<CFM> {
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, CFM recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 7, 17)
-                .addItemStacks(recipe.getFlowingStacks());
+                .addIngredients(ForgeTypes.FLUID_STACK, recipe.getFlowingStacks());
 
         if (recipe.result.type == CFM.MixinResult.Type.BLOCK)
             builder.addSlot(RecipeIngredientRole.OUTPUT, 141, 18)
                     .addItemStack(new ItemStack(recipe.result.block.getBlock()));
 
-        List<List<ItemStack>> blocksNearby = recipe.getBlocksNearby();
+        List<IdTagMatcher> blocksNearby = recipe.blocksNearby;
         int catalysts = 0;
-        for (List<ItemStack> blockNearby : blocksNearby) {
+        for (IdTagMatcher blockNearby : blocksNearby) {
             int x = 51 + (catalysts * 18) - (catalysts / 3 * 54);
             int y = 8 + (catalysts / 3 * 18);
             if (blocksNearby.size() <= 3)
                 y += 8;
-            builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
-                    .addItemStacks(blockNearby);
+            if (CFM.isFluid(blockNearby)) {
+                builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
+                        .addIngredients(ForgeTypes.FLUID_STACK, CFM.getFluidStacks(blockNearby));
+            }
+            else {
+                builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
+                        .addItemStacks(CFM.getItemStacks(blockNearby));
+            }
             catalysts++;
         }
     }
