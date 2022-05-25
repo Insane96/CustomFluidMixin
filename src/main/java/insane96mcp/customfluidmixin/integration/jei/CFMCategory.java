@@ -71,7 +71,7 @@ public class CFMCategory implements IRecipeCategory<CFM> {
         List<IdTagMatcher> blocksNearby = recipe.blocksNearby;
         int catalysts = 0;
         for (IdTagMatcher blockNearby : blocksNearby) {
-            int x = 51 + (catalysts * 18) - (catalysts / 3 * 54);
+            int x = 52 + (catalysts * 17) - (catalysts / 3 * 51);
             int y = 8 + (catalysts / 3 * 18);
             if (blocksNearby.size() <= 3)
                 y += 8;
