@@ -15,6 +15,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.EmptyFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
@@ -37,6 +38,12 @@ public class CFM {
 
     public transient IdTagMatcher flowing;
     public transient List<IdTagMatcher> blocksNearby;
+
+    public CFM(String flowing, List<IdTagMatcher> blocksNearby, String blockResult) {
+        this.flowing = new IdTagMatcher(null, new ResourceLocation(flowing));
+        this.blocksNearby = blocksNearby;
+        this.result = MixinResult.newBlockResult(blockResult);
+    }
 
     public void validate() throws JsonValidationException {
         if (_flowing == null)
@@ -100,7 +107,7 @@ public class CFM {
     public static boolean isFluid(IdTagMatcher idTagMatcher) {
         if (idTagMatcher.id != null) {
             Fluid fluid = ForgeRegistries.FLUIDS.getValue(idTagMatcher.id);
-            return fluid != null;
+            return !(fluid instanceof EmptyFluid);
         }
         else {
             TagKey<Fluid> fluidTagKey = TagKey.create(Registry.FLUID_REGISTRY, idTagMatcher.tag);
@@ -160,6 +167,13 @@ public class CFM {
 
         public transient BlockState block;
         public transient CommandFunction.CacheableFunction function;
+
+        public static MixinResult newBlockResult(String block) {
+            MixinResult m = new MixinResult();
+            m.type = Type.BLOCK;
+            m.block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(block)).defaultBlockState();
+            return m;
+        }
 
         public void validate() throws JsonValidationException {
             if (this.type == null)
