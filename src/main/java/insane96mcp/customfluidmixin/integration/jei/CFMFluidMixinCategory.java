@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.data.CFM;
 import insane96mcp.insanelib.util.IdTagMatcher;
-import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -23,7 +22,7 @@ import net.minecraftforge.client.gui.GuiUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CFMCategory implements IRecipeCategory<CFM> {
+public class CFMFluidMixinCategory implements IRecipeCategory<CFM> {
 
     public static final ResourceLocation CATEGORY_ID = new ResourceLocation(CustomFluidMixin.MOD_ID, "fluid_mixin");
     public static final int width = 164;
@@ -33,11 +32,11 @@ public class CFMCategory implements IRecipeCategory<CFM> {
     private final IDrawable icon;
     private final Component localizedName;
 
-    public CFMCategory(IGuiHelper guiHelper) {
+    public CFMFluidMixinCategory(IGuiHelper guiHelper) {
         ResourceLocation location = Constants.JEI_GUI;
         background = guiHelper.createDrawable(location, 0, 0, width, height);
-        icon = guiHelper.createDrawable(Constants.JEI_GUI, 32, 50, 16, 16);
-        localizedName = new TranslatableComponent("jei.category.cfm");
+        icon = guiHelper.createDrawable(Constants.JEI_GUI, 32, 100, 16, 16);
+        localizedName = new TranslatableComponent("jei.category.fluid_mixin");
     }
 
     @Override
@@ -65,12 +64,6 @@ public class CFMCategory implements IRecipeCategory<CFM> {
         builder.addSlot(RecipeIngredientRole.INPUT, 7, 17)
                 .addIngredients(ForgeTypes.FLUID_STACK, recipe.getFlowingStacks());
 
-        if (recipe.type == CFM.Type.BLOCK_TRANSFORM) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 24, 17)
-                    .addIngredients(VanillaTypes.ITEM_STACK, recipe.getBlockToTransformStacks())
-                    .addIngredients(ForgeTypes.FLUID_STACK, recipe.getFluidToTransformStacks());
-        }
-
         if (recipe.result.type == CFM.MixinResult.Type.BLOCK)
             builder.addSlot(RecipeIngredientRole.OUTPUT, 141, 18)
                     .addItemStack(new ItemStack(recipe.result.block.getBlock()));
@@ -92,15 +85,15 @@ public class CFMCategory implements IRecipeCategory<CFM> {
     @Override
     public void draw(CFM recipe, IRecipeSlotsView recipeSlotsView, PoseStack poseStack, double mouseX, double mouseY) {
         if (recipe.result.type != CFM.MixinResult.Type.BLOCK) {
-            drawRepairCost(poseStack, recipe.result.type);
+            drawNonBlockResult(poseStack, recipe.result.type);
         }
     }
 
-    private void drawRepairCost(PoseStack poseStack, CFM.MixinResult.Type type) {
+    private void drawNonBlockResult(PoseStack poseStack, CFM.MixinResult.Type type) {
         int x = 141;
         int y = 18;
-        int u = type.equals(CFM.MixinResult.Type.EXPLOSION) ? 0 : 16;
-        int v = 50;
+        int u = Constants.ICONS_U + (type.equals(CFM.MixinResult.Type.EXPLOSION) ? 0 : 16);
+        int v = Constants.ICONS_V;
         GuiUtils.drawTexturedModalRect(poseStack, x, y, u, v, 16, 16, 0f);
     }
 

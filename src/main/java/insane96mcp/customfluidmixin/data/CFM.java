@@ -15,6 +15,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.EmptyFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
@@ -46,12 +47,6 @@ public class CFM {
     public transient IdTagMatcher blockToTransform;
     public transient List<IdTagMatcher> blocksNearby;
 
-    public CFM(String flowing, List<IdTagMatcher> blocksNearby, String blockResult) {
-        this.flowing = new IdTagMatcher(null, new ResourceLocation(flowing));
-        this.blocksNearby = blocksNearby;
-        this.result = MixinResult.newBlockResult(blockResult);
-    }
-
     public void validate() throws JsonValidationException {
         if (type == null)
             throw new JsonValidationException("Missing type");
@@ -72,8 +67,9 @@ public class CFM {
 
         if (_blocksNearby == null)
             throw new JsonValidationException("Missing blocks_nearby");
-        if (_blocksNearby.size() == 0 || _blocksNearby.size() > 5)
-            throw new JsonValidationException("Invalid blocks_nearby. There must be at least one block nearby and less than 5 blocks");
+        int minBlocksNearby = this.type == Type.FLOWING_MIXIN ? 1 : 0;
+        if (_blocksNearby.size() < minBlocksNearby || _blocksNearby.size() > 5)
+            throw new JsonValidationException("Invalid blocks_nearby. There must be at least one block nearby (0 works too if type = 'block_transform') and less than 5 blocks");
 
         blocksNearby = new ArrayList<>();
         for (String s : _blocksNearby) {
@@ -89,6 +85,25 @@ public class CFM {
 
         if (this.fizz == null)
             this.fizz = true;
+    }
+
+    public static CFM createFlowingMixin(String flowing, List<IdTagMatcher> blocksNearby, String blockResult) {
+        CFM cfm = new CFM();
+        cfm.type = Type.FLOWING_MIXIN;
+        cfm.flowing = new IdTagMatcher(null, new ResourceLocation(flowing));
+        cfm.blocksNearby = blocksNearby;
+        cfm.result = MixinResult.newBlockResult(blockResult);
+        return cfm;
+    }
+
+    public static CFM createBlockTransformation(String flowing, IdTagMatcher blockToTransform, List<IdTagMatcher> blocksNearby, String blockResult) {
+        CFM cfm = new CFM();
+        cfm.type = Type.BLOCK_TRANSFORM;
+        cfm.flowing = new IdTagMatcher(null, new ResourceLocation(flowing));
+        cfm.blockToTransform = blockToTransform;
+        cfm.blocksNearby = blocksNearby;
+        cfm.result = MixinResult.newBlockResult(blockResult);
+        return cfm;
     }
 
     /**
@@ -116,7 +131,8 @@ public class CFM {
         List<FluidStack> fluidStacks = new ArrayList<>();
         if (idTagMatcher.id != null) {
             Fluid fluid = ForgeRegistries.FLUIDS.getValue(idTagMatcher.id);
-            fluidStacks.add(new FluidStack(fluid, 1000));
+            if (!(fluid instanceof EmptyFluid))
+                fluidStacks.add(new FluidStack(fluid, 1000));
         }
         else {
             TagKey<Fluid> fluidTagKey = TagKey.create(Registry.FLUID_REGISTRY, idTagMatcher.tag);
@@ -202,17 +218,13 @@ public class CFM {
         }
 
         public void execute(ServerLevel level, BlockPos pos) {
-            level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.AIR.defaultBlockState()));
+            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             if (level.getRandom().nextFloat() > this.chance)
                 return;
 
             switch (type) {
-                case BLOCK -> {
-                    level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
-                }
-                case EXPLOSION -> {
-                    level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, this.shouldGenerateFire, Explosion.BlockInteraction.BREAK);
-                }
+                case BLOCK -> level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
+                case EXPLOSION -> level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, this.shouldGenerateFire, Explosion.BlockInteraction.BREAK);
                 case FUNCTION -> {
                     MinecraftServer server = level.getServer();
                     this.function.get(server.getFunctions()).ifPresent((commandFunction) -> server.getFunctions().execute(commandFunction, server.getFunctions().getGameLoopSender().withPosition(new Vec3(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d)).withLevel(level)));

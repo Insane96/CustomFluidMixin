@@ -1,6 +1,9 @@
 {
-    "jei.category.cfm": "Fluid Mixin",
+    "jei.category.fluid_mixin": "Fluid Mixin",
+    "jei.category.block_transformation": "Block Fluid Transformation",
     "jei.flowing_into": "Flowing into",
-    "jei.result.explosion.tooltip": "Explosion Power: %s",
+    "jei.flowing_onto": "Flowing onto",
+    "jei.when_near": "When near",
+    "jei.result.explosion.tooltip": "Explosion Power: %.0f",
     "jei.result.function.tooltip": "Function executed: %s"
 }
