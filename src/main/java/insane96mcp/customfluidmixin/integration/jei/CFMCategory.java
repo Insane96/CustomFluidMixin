@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.data.CFM;
 import insane96mcp.insanelib.util.IdTagMatcher;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -64,6 +65,12 @@ public class CFMCategory implements IRecipeCategory<CFM> {
         builder.addSlot(RecipeIngredientRole.INPUT, 7, 17)
                 .addIngredients(ForgeTypes.FLUID_STACK, recipe.getFlowingStacks());
 
+        if (recipe.type == CFM.Type.BLOCK_TRANSFORM) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 24, 17)
+                    .addIngredients(VanillaTypes.ITEM_STACK, recipe.getBlockToTransformStacks())
+                    .addIngredients(ForgeTypes.FLUID_STACK, recipe.getFluidToTransformStacks());
+        }
+
         if (recipe.result.type == CFM.MixinResult.Type.BLOCK)
             builder.addSlot(RecipeIngredientRole.OUTPUT, 141, 18)
                     .addItemStack(new ItemStack(recipe.result.block.getBlock()));
@@ -75,14 +82,9 @@ public class CFMCategory implements IRecipeCategory<CFM> {
             int y = 8 + (catalysts / 3 * 18);
             if (blocksNearby.size() <= 3)
                 y += 8;
-            if (CFM.isFluid(blockNearby)) {
-                builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
-                        .addIngredients(ForgeTypes.FLUID_STACK, CFM.getFluidStacks(blockNearby));
-            }
-            else {
-                builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
+            builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
+                        .addIngredients(ForgeTypes.FLUID_STACK, CFM.getFluidStacks(blockNearby))
                         .addItemStacks(CFM.getItemStacks(blockNearby));
-            }
             catalysts++;
         }
     }

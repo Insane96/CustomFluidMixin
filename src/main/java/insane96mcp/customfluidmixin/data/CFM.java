@@ -15,7 +15,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.EmptyFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
@@ -27,8 +26,15 @@ import java.util.List;
 
 public class CFM {
 
+    @SerializedName("type")
+    public Type type;
+
     @SerializedName("flowing")
     private String _flowing;
+
+    @SerializedName("block_to_transform")
+    private String _blockToTransform;
+
     @SerializedName("blocks_nearby")
     private List<String> _blocksNearby;
 
@@ -37,6 +43,7 @@ public class CFM {
     public Boolean fizz;
 
     public transient IdTagMatcher flowing;
+    public transient IdTagMatcher blockToTransform;
     public transient List<IdTagMatcher> blocksNearby;
 
     public CFM(String flowing, List<IdTagMatcher> blocksNearby, String blockResult) {
@@ -46,11 +53,22 @@ public class CFM {
     }
 
     public void validate() throws JsonValidationException {
+        if (type == null)
+            throw new JsonValidationException("Missing type");
+
         if (_flowing == null)
             throw new JsonValidationException("Missing flowing block");
         flowing = IdTagMatcher.parseLine(_flowing);
         if (flowing == null)
             throw new JsonValidationException("Failed to parse flowing");
+
+        if (type == Type.BLOCK_TRANSFORM) {
+            if (_blockToTransform == null)
+                throw new JsonValidationException("Missing block_to_transform block");
+            blockToTransform = IdTagMatcher.parseLine(_blockToTransform);
+            if (blockToTransform == null)
+                throw new JsonValidationException("Failed to parse block_to_transform");
+        }
 
         if (_blocksNearby == null)
             throw new JsonValidationException("Missing blocks_nearby");
@@ -74,46 +92,24 @@ public class CFM {
     }
 
     /**
-     * Returns a list of Fluids in the "flowing" key
-     */
-    public List<Fluid> getAllFlowingFluids() {
-        List<Fluid> fluids = new ArrayList<>();
-        if (this.flowing.id != null) {
-            Fluid fluid = ForgeRegistries.FLUIDS.getValue(this.flowing.id);
-            if (fluid != null)
-                fluids.add(fluid);
-        }
-        else {
-            TagKey<Fluid> tagKey = TagKey.create(Registry.FLUID_REGISTRY, this.flowing.tag);
-            ITag<Fluid> blockTag = ForgeRegistries.FLUIDS.tags().getTag(tagKey);
-            fluids.addAll(blockTag.stream().toList());
-        }
-        return fluids;
-    }
-
-    /**
      * Returns a list with all the fluid stacks in the "flowing" key
      */
     public List<FluidStack> getFlowingStacks() {
-        List<FluidStack> stacks = new ArrayList<>();
-        List<Fluid> fluids = this.getAllFlowingFluids();
-        for (Fluid fluid : fluids) {
-            FluidStack stack = new FluidStack(fluid, 1000);
-            stacks.add(stack);
-        }
-        return stacks;
+        return getFluidStacks(this.flowing);
     }
 
-    public static boolean isFluid(IdTagMatcher idTagMatcher) {
-        if (idTagMatcher.id != null) {
-            Fluid fluid = ForgeRegistries.FLUIDS.getValue(idTagMatcher.id);
-            return !(fluid instanceof EmptyFluid);
-        }
-        else {
-            TagKey<Fluid> fluidTagKey = TagKey.create(Registry.FLUID_REGISTRY, idTagMatcher.tag);
-            //noinspection ConstantConditions
-            return ForgeRegistries.FLUIDS.tags().isKnownTagName(fluidTagKey);
-        }
+    /**
+     * Returns a list with all the fluids stacks in the "block_to_transform" key
+     */
+    public List<FluidStack> getFluidToTransformStacks() {
+        return getFluidStacks(this.blockToTransform);
+    }
+
+    /**
+     * Returns a list with all the block stacks in the "block_to_transform" key
+     */
+    public List<ItemStack> getBlockToTransformStacks() {
+        return getItemStacks(this.blockToTransform);
     }
 
     public static List<FluidStack> getFluidStacks(IdTagMatcher idTagMatcher) {
@@ -219,9 +215,7 @@ public class CFM {
                 }
                 case FUNCTION -> {
                     MinecraftServer server = level.getServer();
-                    this.function.get(server.getFunctions()).ifPresent((commandFunction) -> {
-                        server.getFunctions().execute(commandFunction, server.getFunctions().getGameLoopSender().withPosition(new Vec3(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d)).withLevel(level));
-                    });
+                    this.function.get(server.getFunctions()).ifPresent((commandFunction) -> server.getFunctions().execute(commandFunction, server.getFunctions().getGameLoopSender().withPosition(new Vec3(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d)).withLevel(level)));
                 }
             }
         }
@@ -234,5 +228,12 @@ public class CFM {
             @SerializedName("function")
             FUNCTION
         }
+    }
+
+    public enum Type {
+        @SerializedName("flowing_block")
+        FLOWING_MIXIN,
+        @SerializedName("block_transform")
+        BLOCK_TRANSFORM
     }
 }
