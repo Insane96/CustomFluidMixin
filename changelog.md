@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+* JEI now displays fluids instead of buckets
+* JEI now displays vanilla fluid mixins (Cobblestone and Basalt)
+* Minor change to JEI GUI
+
 ## 1.1.0
 * Added JEI support!
 * Fixed wrong pack format
