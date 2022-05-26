@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+* Added Block Transformation. Liquids flowing near blocks can now be changed. The example data pack contains lava flowing near/onto Sand that's near Magma Blocks to transform into Glass.
+
 ## 1.1.1
 * JEI now displays fluids instead of buckets
 * JEI now displays vanilla fluid mixins (Cobblestone and Basalt)
