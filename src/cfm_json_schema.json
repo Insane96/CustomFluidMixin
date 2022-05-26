@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insane96.eu/cfm_schema.json",
+  "title": "Custom Fluid Mixin",
+  "description": "A Fluid Mixin",
+  "type": "object",
+  "properties": {
+    "flowing": {
+      "description": "The flowing fluid (recommended to use tags)",
+      "type": "string"
+    },
+    "blocks_nearby": {
+      "description": "A list of blocks nearby required for the mixin to be successful",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "result": {
+      "description": "The result of the mixin",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "The result type, e.g. 'block'",
+          "type": "string"
+        },
+        "block": {
+          "description": "The block resulting from the Mixin if 'type' is 'block'",
+          "type": "string"
+        },
+        "power": {
+          "description": "The explosion power from the Mixin if 'type' is 'explosion'",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "function": {
+          "description": "The function executed from the Mixin if 'type' is 'function'",
+          "type": "string"
+        }
+      },
+      "required": [ "type" ]
+    }
+  },
+  "required": [ "flowing", "blocks_nearby", "result" ]
+}
