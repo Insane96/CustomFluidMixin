@@ -1,0 +1,10 @@
+{
+    "jei.category.fluid_mixin": "Mix Fluidi",
+    "jei.category.block_transformation": "Trasformazione Fluido Blocco",
+    "jei.flowing_into": "Scorre in",
+    "jei.flowing_onto": "Scorre su",
+    "jei.when_near": "Quando vicino",
+    "jei.result.explosion.tooltip": "Potenza Esplosione: %.0f",
+    "jei.result.function.tooltip": "Funzione eseguita: %s"
+
+}
