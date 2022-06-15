@@ -38,19 +38,19 @@ public class CFMJeiPlugin implements IModPlugin {
 
     private final CFM CFM_COBBLESTONE = CFM.createFlowingMixin("minecraft:lava",
             List.of(
-                    new IdTagMatcher(null, new ResourceLocation("minecraft:water"))),
+                    new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:water"))),
             "minecraft:cobblestone");
     private final CFM CFM_BASALT = CFM.createFlowingMixin("minecraft:lava",
             List.of(
-                    new IdTagMatcher(new ResourceLocation("minecraft:soul_soil"), null),
-                    new IdTagMatcher(new ResourceLocation("minecraft:blue_ice"), null)),
+                    new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:soul_soil")),
+                    new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:blue_ice"))),
             "minecraft:basalt");
     private final CFM CFM_OBSIDIAN = CFM.createBlockTransformation("minecraft:water",
-            new IdTagMatcher(null, new ResourceLocation("minecraft:lava")),
+            new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:lava")),
             List.of(),
             "minecraft:obsidian");
     private final CFM CFM_STONE = CFM.createBlockTransformation("minecraft:lava",
-            new IdTagMatcher(null, new ResourceLocation("minecraft:water")),
+            new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:water")),
             List.of(),
             "minecraft:stone");
 

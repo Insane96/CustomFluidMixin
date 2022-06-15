@@ -4,9 +4,8 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonParseException;
 import insane96mcp.customfluidmixin.CustomFluidMixin;
-import insane96mcp.customfluidmixin.exception.JsonValidationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -48,10 +47,7 @@ public class CFMListener extends SimpleJsonResourceReloadListener {
 
                 this.customFluidMixin.put(name, cfm);
 			}
-            catch (JsonValidationException e) {
-                CustomFluidMixin.LOGGER.error("Validation error loading Custom Fluid Mixin {}: {}", entry.getKey(), e.getMessage());
-            }
-			catch (JsonSyntaxException e) {
+			catch (JsonParseException e) {
                 CustomFluidMixin.LOGGER.error("Parsing error loading Custom Fluid Mixin {}: {}", entry.getKey(), e.getMessage());
 			}
 			catch (Exception e) {

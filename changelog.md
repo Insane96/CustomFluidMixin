@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.1
+* Now requires InsaneLib 1.5.1
+
 ## 1.2.0
 * Added Block Transformation. Liquids flowing near blocks can now be changed. The example data pack contains lava flowing near/onto Sand that's near Magma Blocks to transform into Glass.
 

@@ -76,8 +76,8 @@ public class CFMFluidMixinCategory implements IRecipeCategory<CFM> {
             if (blocksNearby.size() <= 3)
                 y += 8;
             builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
-                        .addIngredients(ForgeTypes.FLUID_STACK, CFM.getFluidStacks(blockNearby))
-                        .addItemStacks(CFM.getItemStacks(blockNearby));
+                        .addIngredients(ForgeTypes.FLUID_STACK, blockNearby.getAllFluidStacks())
+                        .addItemStacks(blockNearby.getAllItemStacks());
             catalysts++;
         }
     }
