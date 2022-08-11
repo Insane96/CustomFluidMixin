@@ -15,10 +15,9 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.gui.GuiUtils;
+import net.minecraftforge.client.gui.ScreenUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ public class CFMBlockTransformationCategory implements IRecipeCategory<CFM> {
         ResourceLocation location = Constants.JEI_GUI;
         background = guiHelper.createDrawable(location, 0, 50, width, height);
         icon = guiHelper.createDrawable(Constants.JEI_GUI, 48, 100, 16, 16);
-        localizedName = new TranslatableComponent("jei.category.block_transformation");
+        localizedName = Component.translatable("jei.category.block_transformation");
     }
 
     @Override
@@ -99,7 +98,7 @@ public class CFMBlockTransformationCategory implements IRecipeCategory<CFM> {
         int y = 18;
         int u = Constants.ICONS_U + (type.equals(CFM.MixinResult.Type.EXPLOSION) ? 0 : 16);
         int v = Constants.ICONS_V;
-        GuiUtils.drawTexturedModalRect(poseStack, x, y, u, v, 16, 16, 0f);
+        ScreenUtils.drawTexturedModalRect(poseStack, x, y, u, v, 16, 16, 0f);
     }
 
     @Override
@@ -107,28 +106,16 @@ public class CFMBlockTransformationCategory implements IRecipeCategory<CFM> {
         ArrayList<Component> tooltips = new ArrayList<>();
         if (mouseX >= 141 && mouseX <= 157 && mouseY >= 18 && mouseY <= 34) {
             if (recipe.result.type == CFM.MixinResult.Type.EXPLOSION) {
-                tooltips.add(new TranslatableComponent("jei.result.explosion.tooltip", recipe.result.explosionPower));
+                tooltips.add(Component.translatable("jei.result.explosion.tooltip", recipe.result.explosionPower));
             }
             else if (recipe.result.type == CFM.MixinResult.Type.FUNCTION) {
-                tooltips.add(new TranslatableComponent("jei.result.function.tooltip", recipe.result.function.getId()));
+                tooltips.add(Component.translatable("jei.result.function.tooltip", recipe.result.function.getId()));
             }
         }
         if (mouseX >= 9 && mouseX <= 20 && mouseY >= 22 && mouseY <= 27)
-            tooltips.add(new TranslatableComponent("jei.flowing_onto"));
+            tooltips.add(Component.translatable("jei.flowing_onto"));
         if (mouseX >= 30 && mouseX <= 41 && mouseY >= 32 && mouseY <= 43)
-            tooltips.add(new TranslatableComponent("jei.when_near"));
+            tooltips.add(Component.translatable("jei.when_near"));
         return tooltips;
-    }
-
-    @SuppressWarnings("removal")
-    @Override
-    public ResourceLocation getUid() {
-        return CATEGORY_ID;
-    }
-
-    @SuppressWarnings("removal")
-    @Override
-    public Class<? extends CFM> getRecipeClass() {
-        return CFM.class;
     }
 }
