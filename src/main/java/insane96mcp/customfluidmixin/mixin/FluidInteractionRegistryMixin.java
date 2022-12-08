@@ -7,24 +7,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.fluids.FluidInteractionRegistry;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(LiquidBlock.class)
-public abstract class LiquidBlockMixin {
+@Mixin(FluidInteractionRegistry.class)
+public abstract class FluidInteractionRegistryMixin {
 
-    @Inject(at = @At("HEAD"), method = "shouldSpreadLiquid(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z", cancellable = true)
-    private void shouldSpreadLiquid(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Boolean> callback) {
+    @Inject(at = @At("HEAD"), method = "canInteract", cancellable = true, remap = false)
+    private static void canInteract(Level level, BlockPos pos, CallbackInfoReturnable<Boolean> callback) {
         for (CFM cfm : CFMListener.INSTANCE.getList()) {
-            blockTransformation(cfm, level, state, pos);
-            if (fluidMixin(cfm, level, state, pos)) {
-                callback.setReturnValue(false);
+            blockTransformation(cfm, level, level.getBlockState(pos), pos);
+            if (fluidMixin(cfm, level, level.getBlockState(pos), pos)) {
+                callback.setReturnValue(true);
                 break;
             }
         }
@@ -33,7 +32,7 @@ public abstract class LiquidBlockMixin {
     /**
      * Returns true if a mixin has been successful and shouldn't keep executing vanilla code
      */
-    private boolean fluidMixin(CFM cfm, Level level, BlockState state, BlockPos pos) {
+    private static boolean fluidMixin(CFM cfm, Level level, BlockState state, BlockPos pos) {
         if (cfm.type != CFM.Type.FLOWING_MIXIN)
             return false;
         if (!cfm.flowing.matchesFluid(state.getFluidState().getType()))
@@ -60,14 +59,14 @@ public abstract class LiquidBlockMixin {
 
         cfm.result.execute((ServerLevel) level, pos);
         if (cfm.fizz)
-            this.fizz(level, pos);
+            level.levelEvent(1501, pos, 0);
         return true;
     }
 
     /**
      * Returns true if a mixin has been successful and shouldn't keep executing vanilla code
      */
-    private void blockTransformation(CFM cfm, Level level, BlockState state, BlockPos pos) {
+    private static void blockTransformation(CFM cfm, Level level, BlockState state, BlockPos pos) {
         if (cfm.type != CFM.Type.BLOCK_TRANSFORM)
             return;
         if (!cfm.flowing.matchesFluid(state.getFluidState().getType()))
@@ -98,10 +97,7 @@ public abstract class LiquidBlockMixin {
 
             cfm.result.execute((ServerLevel) level, posFluidDirection);
             if (cfm.fizz)
-                this.fizz(level, pos);
+                level.levelEvent(1501, pos, 0);
         }
     }
-
-    @Shadow
-    protected abstract void fizz(LevelAccessor worldIn, BlockPos pos);
 }

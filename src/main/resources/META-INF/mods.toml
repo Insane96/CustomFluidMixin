@@ -2,31 +2,31 @@ modLoader="javafml"
 loaderVersion="[42,)"
 license="All rights reserved"
 [[mods]]
-modId="customfluidmixin"
-version="${file.jarVersion}"
-displayName="Custom Fluid Mixin"
-displayURL="https://www.curseforge.com/minecraft/mc-mods/custom-fluid-mixin"
-#logoFile="logo.png"
-#credits="Thanks for this example mod goes to Java"
-authors="Insane96MCP"
-description='''
-Modpack maker tool to make custom output when fluids flow (much like vanilla does for cobblestone or basalt) via DataPacks.
-'''
-[[dependencies.customfluidmixin]]
-    modId="forge"
-    mandatory=true
-    versionRange="[42,)"
-    ordering="NONE"
-    side="BOTH"
-[[dependencies.customfluidmixin]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.19.1,1.20)"
-    ordering="NONE"
-    side="BOTH"
-[[dependencies.customfluidmixin]]
-    modId="insanelib"
-    mandatory=true
-    versionRange="[1.6.0,)"
-    ordering="NONE"
-    side="BOTH"
+    modId="customfluidmixin"
+    version="${file.jarVersion}"
+    displayName="Custom Fluid Mixin"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/custom-fluid-mixin"
+    #logoFile="logo.png"
+    #credits="Thanks for this example mod goes to Java"
+    authors="Insane96MCP"
+    description='''
+    Modpack maker tool to make custom output when fluids flow (much like vanilla does for cobblestone or basalt) via DataPacks.
+    '''
+    [[dependencies.customfluidmixin]]
+        modId="forge"
+        mandatory=true
+        versionRange="[42,)"
+        ordering="NONE"
+        side="BOTH"
+    [[dependencies.customfluidmixin]]
+        modId="minecraft"
+        mandatory=true
+        versionRange="[1.19.1,1.20)"
+        ordering="NONE"
+        side="BOTH"
+    [[dependencies.customfluidmixin]]
+        modId="insanelib"
+        mandatory=true
+        versionRange="[1.6.0,)"
+        ordering="NONE"
+        side="BOTH"

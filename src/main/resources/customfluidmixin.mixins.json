@@ -4,7 +4,7 @@
     "compatibilityLevel": "JAVA_8",
     "refmap": "customfluidmixin.refmap.json",
     "mixins": [
-        "LiquidBlockMixin"
+        "FluidInteractionRegistryMixin"
     ],
     "minVersion": "0.8"
 }
