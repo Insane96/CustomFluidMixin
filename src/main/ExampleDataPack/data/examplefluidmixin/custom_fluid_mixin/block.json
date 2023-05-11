@@ -1,0 +1,13 @@
+{
+    "type": "flowing_block",
+    "flowing": "#minecraft:lava",
+    "blocks_nearby": [
+        "minecraft:diamond_block",
+        "minecraft:beacon",
+        "#minecraft:water"
+    ],
+    "result": {
+        "type": "block",
+        "block": "minecraft:diamond_ore"
+    }
+}

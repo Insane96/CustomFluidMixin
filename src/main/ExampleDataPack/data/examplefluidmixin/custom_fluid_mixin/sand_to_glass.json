@@ -1,0 +1,11 @@
+{
+    "type": "block_transform",
+    "flowing": "#minecraft:water",
+    "block_to_transform": "minecraft:lava",
+    "blocks_nearby": [
+    ],
+    "result": {
+        "type": "block",
+        "block": "minecraft:glass"
+    }
+}

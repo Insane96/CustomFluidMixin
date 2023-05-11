@@ -1,0 +1,11 @@
+{
+    "type": "flowing_block",
+    "flowing": "createcafe:filling",
+    "blocks_nearby": [
+        "#minecraft:lava"
+    ],
+    "result": {
+        "type": "block",
+        "block": "minecraft:andesite"
+    }
+}

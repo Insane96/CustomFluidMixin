@@ -5,13 +5,17 @@ import com.google.gson.annotations.SerializedName;
 import insane96mcp.insanelib.util.IdTagMatcher;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -211,5 +215,82 @@ public class CFM {
         FLOWING_MIXIN,
         @SerializedName("block_transform")
         BLOCK_TRANSFORM
+    }
+
+
+    /**
+     * Returns true if a mixin has been successful and shouldn't keep executing vanilla code
+     */
+    public static boolean fluidMixin(CFM cfm, Level level, BlockState state, BlockPos pos) {
+        if (cfm.type != CFM.Type.FLOWING_MIXIN)
+            return false;
+        if (!cfm.flowing.matchesFluid(state.getFluidState().getType()))
+            return false;
+
+        boolean blocksNearbyMatch = true;
+        for (IdTagMatcher blockAround : cfm.blocksNearby) {
+            boolean found = false;
+            for (Direction direction : Direction.values()) {
+                BlockPos blockpos = pos.relative(direction);
+                if (blockAround.matchesBlock(level.getBlockState(blockpos).getBlock()) || blockAround.matchesFluid(level.getFluidState(blockpos).getType())) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                blocksNearbyMatch = false;
+                break;
+            }
+        }
+        if (!blocksNearbyMatch)
+            return false;
+
+        cfm.result.execute((ServerLevel) level, pos);
+        if (cfm.fizz)
+            level.levelEvent(1501, pos, 0);
+        return true;
+    }
+
+    /**
+     * Returns true if a mixin has been successful and shouldn't keep executing vanilla code
+     */
+    public static void blockTransformation(CFM cfm, Level level, BlockState state, BlockPos pos) {
+        if (cfm.type != CFM.Type.BLOCK_TRANSFORM)
+            return;
+        if (!cfm.flowing.matchesFluid(state.getFluidState().getType()))
+            return;
+
+        for (Direction fluidDirection : LiquidBlock.POSSIBLE_FLOW_DIRECTIONS) {
+            BlockPos posFluidDirection = pos.relative(fluidDirection);
+            if (level.getFluidState(posFluidDirection).getType() != Fluids.EMPTY) {
+                if (!cfm.blockToTransform.matchesFluid(level.getFluidState(posFluidDirection).getType()))
+                    continue;
+            }
+            else if (!cfm.blockToTransform.matchesBlock(level.getBlockState(posFluidDirection).getBlock()))
+                continue;
+            boolean blocksNearbyMatch = true;
+            for (IdTagMatcher blockAround : cfm.blocksNearby) {
+                boolean found = false;
+                for (Direction direction : Direction.values()) {
+                    BlockPos blockPos = posFluidDirection.relative(direction);
+                    if (blockAround.matchesBlock(level.getBlockState(blockPos).getBlock()) || blockAround.matchesFluid(level.getFluidState(blockPos).getType())) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    blocksNearbyMatch = false;
+                    break;
+                }
+            }
+            if (!blocksNearbyMatch)
+                continue;
+
+            cfm.result.execute((ServerLevel) level, posFluidDirection);
+            if (cfm.fizz)
+                level.levelEvent(1501, pos, 0);
+        }
     }
 }
