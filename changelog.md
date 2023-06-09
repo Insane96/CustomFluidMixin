@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.0
+* MC 1.20
+
 ## 1.3.2
 * Fixed `block_transform` on fluid not working correctly
 
