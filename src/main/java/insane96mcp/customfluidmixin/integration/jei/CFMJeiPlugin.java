@@ -3,7 +3,7 @@ package insane96mcp.customfluidmixin.integration.jei;
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.data.CFM;
 import insane96mcp.customfluidmixin.data.CFMListener;
-import insane96mcp.insanelib.util.IdTagMatcher;
+import insane96mcp.insanelib.data.IdTagMatcher;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.RecipeType;

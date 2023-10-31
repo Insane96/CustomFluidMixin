@@ -2,7 +2,7 @@ package insane96mcp.customfluidmixin.data;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
-import insane96mcp.insanelib.util.IdTagMatcher;
+import insane96mcp.insanelib.data.IdTagMatcher;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

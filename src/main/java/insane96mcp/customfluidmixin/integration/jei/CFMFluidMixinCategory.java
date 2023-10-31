@@ -2,7 +2,7 @@ package insane96mcp.customfluidmixin.integration.jei;
 
 import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.customfluidmixin.data.CFM;
-import insane96mcp.insanelib.util.IdTagMatcher;
+import insane96mcp.insanelib.data.IdTagMatcher;
 import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
