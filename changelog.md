@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2
+* Fixed possible loop when transforming a block into the same one
+* Rewrote whole serialization of the JSON (could break basically)
+
 ## 1.4.1
 * Update to MC 1.20.1
 * Now compatible with InsaneLib 1.12.0

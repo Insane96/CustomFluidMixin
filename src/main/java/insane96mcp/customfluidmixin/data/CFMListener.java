@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.Map;
 public class CFMListener extends SimpleJsonResourceReloadListener {
 
 	public static final CFMListener INSTANCE;
-    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
+    public static final Gson GSON = new GsonBuilder().registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer()).disableHtmlEscaping().create();
 
     public final Map<ResourceLocation, CFM> customFluidMixin;
 
@@ -43,15 +44,16 @@ public class CFMListener extends SimpleJsonResourceReloadListener {
 			JsonElement json = entry.getValue();
 			try {
                 CFM cfm = GSON.fromJson(json, CFM.class);
-                cfm.validate();
 
                 this.customFluidMixin.put(name, cfm);
 			}
 			catch (JsonParseException e) {
                 CustomFluidMixin.LOGGER.error("Parsing error loading Custom Fluid Mixin {}: {}", entry.getKey(), e.getMessage());
+                CustomFluidMixin.LOGGER.error(ExceptionUtils.getStackTrace(e));
 			}
 			catch (Exception e) {
                 CustomFluidMixin.LOGGER.error("Failed loading Custom Fluid Mixin {}: {}", entry.getKey(), e.getMessage());
+                CustomFluidMixin.LOGGER.error(ExceptionUtils.getStackTrace(e));
 			}
 		}
 
