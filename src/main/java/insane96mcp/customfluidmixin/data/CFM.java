@@ -4,22 +4,17 @@ import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import insane96mcp.insanelib.data.IdTagMatcher;
-import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -116,85 +111,6 @@ public class CFM {
         return String.format("CFM[type: %s, flowing: %s, block_to_transform: %s, blocks_nearby: %s, result: %s, fizz: %s]", this.type, this.flowing, this.blockToTransform, this.blocksNearby, this.result, this.fizz);
     }
 
-    @JsonAdapter(MixinResult.Serializer.class)
-    public static class MixinResult {
-        public Type type;
-        public float explosionPower;
-        public Boolean shouldGenerateFire;
-        public float chance;
-        public BlockState block;
-        public CommandFunction.CacheableFunction function;
-
-        public static class Serializer implements JsonDeserializer<MixinResult>, JsonSerializer<MixinResult> {
-            @Override
-            public MixinResult deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                MixinResult mixinResult = new MixinResult();
-                JsonObject jObject = json.getAsJsonObject();
-                mixinResult.type = context.deserialize(jObject.get("type"), MixinResult.Type.class);
-                switch (mixinResult.type) {
-                    case BLOCK -> mixinResult.block = ForgeRegistries.BLOCKS.getValue(context.deserialize(jObject.get("block"), ResourceLocation.class)).defaultBlockState();
-                    case EXPLOSION -> {
-                        mixinResult.explosionPower = GsonHelper.getAsFloat(jObject, "explosion_power");
-                        mixinResult.shouldGenerateFire = GsonHelper.getAsBoolean(jObject, "fire", false);
-                    }
-                    case FUNCTION -> mixinResult.function = new CommandFunction.CacheableFunction(new ResourceLocation(GsonHelper.getAsString(jObject, "function")));
-                }
-                mixinResult.chance = GsonHelper.getAsFloat(jObject, "chance", 1f);
-                return mixinResult;
-            }
-
-            @Override
-            public JsonElement serialize(MixinResult mixinResult, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
-                JsonObject jObject = new JsonObject();
-                jObject.add("type", context.serialize(mixinResult.type));
-                switch (mixinResult.type) {
-                    case BLOCK -> jObject.add("block", context.serialize(mixinResult.block));
-                    case EXPLOSION -> {
-                        jObject.addProperty("explosion_power", mixinResult.explosionPower);
-                        if (mixinResult.shouldGenerateFire)
-                            jObject.addProperty("fire", true);
-                    }
-                    case FUNCTION ->
-                            jObject.add("function", context.serialize(mixinResult.function.getId()));
-                }
-                jObject.addProperty("chance", mixinResult.chance);
-
-                return jObject;
-            }
-        }
-
-        public static MixinResult newBlockResult(String block) {
-            MixinResult m = new MixinResult();
-            m.type = Type.BLOCK;
-            m.block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(block)).defaultBlockState();
-            return m;
-        }
-
-        public void execute(ServerLevel level, BlockPos pos) {
-            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-            if (level.getRandom().nextFloat() > this.chance)
-                return;
-
-            switch (this.type) {
-                case BLOCK -> level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, block));
-                case EXPLOSION -> level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, this.shouldGenerateFire, Level.ExplosionInteraction.BLOCK);
-                case FUNCTION -> {
-                    MinecraftServer server = level.getServer();
-                    this.function.get(server.getFunctions()).ifPresent((commandFunction) -> server.getFunctions().execute(commandFunction, server.getFunctions().getGameLoopSender().withPosition(new Vec3(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d)).withLevel(level)));
-                }
-            }
-        }
-
-        public enum Type {
-            @SerializedName("block")
-            BLOCK,
-            @SerializedName("explosion")
-            EXPLOSION,
-            @SerializedName("function")
-            FUNCTION
-        }
-    }
-
     public enum Type {
         @SerializedName("flowing_block")
         FLOWING_MIXIN,
@@ -230,6 +146,7 @@ public class CFM {
         if (!blocksNearbyMatch)
             return false;
 
+        cfm.result.getRandomBlockResult(level.random).getBlock();
         cfm.result.execute((ServerLevel) level, pos);
         if (cfm.fizz)
             level.levelEvent(1501, pos, 0);
@@ -248,12 +165,13 @@ public class CFM {
         //For each flowing direction (everywhere but up)
         for (Direction fluidDirection : LiquidBlock.POSSIBLE_FLOW_DIRECTIONS) {
             BlockPos posFluidDirection = pos.relative(fluidDirection);
+            BlockState newState = cfm.result.getRandomBlockResult(level.random).getBlock();
             //If the fluid doesn't match
             if ((level.getFluidState(posFluidDirection).getType() != Fluids.EMPTY && !cfm.blockToTransform.matchesFluid(level.getFluidState(posFluidDirection).getType()))
                     // Or the block to transform doesn't match
                     || (cfm.type == Type.BLOCK_TRANSFORM && (!cfm.blockToTransform.matchesBlock(level.getBlockState(posFluidDirection).getBlock())
-                            // Or the current block is already the block to transform to
-                            || cfm.result.block.is(level.getBlockState(posFluidDirection).getBlock()))))
+                    // Or the current block is already the block to transform to
+                    || newState.is(level.getBlockState(posFluidDirection).getBlock()))))
                 //Do nothing
                 continue;
 

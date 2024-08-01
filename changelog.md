@@ -1,5 +1,25 @@
 # Changelog
 
+## Upcoming
+* Changed `"result": "block"` to `"result": "blocks"`
+  * `block` field has changed to `blocks`. Like before can be used as string specifying a block, or can be used as a list with weighted entries  
+  This example makes the result have 50% chance to give stone and 50% to give cobblestone  
+  ```json
+    {
+        "result": "blocks",
+        "blocks": [
+            {
+                "block": "minecraft:stone",
+                "weight": 1
+            },
+            {
+                "block": "minecraft:cobblestone",
+                "weight": 1
+            }
+        ]
+    }
+  ```
+
 ## 1.4.2
 * Fixed possible loop when transforming a block into the same one
 * Rewrote whole serialization of the JSON (could break basically)
@@ -10,12 +30,3 @@
 
 ## 1.4.0
 * MC 1.20
-
-## 1.3.2
-* Fixed `block_transform` on fluid not working correctly
-
-## 1.3.1
-* Fixed the mod no longer working with the newest Forge
-
-## 1.3.0
-* Updated to 1.19.1+

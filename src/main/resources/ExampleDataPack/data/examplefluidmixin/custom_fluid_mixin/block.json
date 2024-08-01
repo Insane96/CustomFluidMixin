@@ -7,7 +7,16 @@
         "#minecraft:water"
     ],
     "result": {
-        "type": "block",
-        "block": "minecraft:diamond_ore"
+        "type": "blocks",
+        "blocks": [
+            {
+                "block": "minecraft:diamond_ore",
+                "weight": 1
+            },
+            {
+                "block": "minecraft:stone",
+                "weight": 2
+            }
+        ]
     }
 }

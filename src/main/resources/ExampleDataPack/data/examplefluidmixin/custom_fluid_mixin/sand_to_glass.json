@@ -6,7 +6,7 @@
         "minecraft:magma_block"
     ],
     "result": {
-        "type": "block",
-        "block": "minecraft:glass"
+        "type": "blocks",
+        "blocks": "minecraft:glass"
     }
 }
