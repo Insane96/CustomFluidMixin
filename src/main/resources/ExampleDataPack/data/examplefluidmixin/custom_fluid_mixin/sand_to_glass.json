@@ -1,8 +1,9 @@
 {
     "type": "block_transform",
-    "flowing": "#minecraft:water",
-    "block_to_transform": "minecraft:lava",
+    "flowing": "#minecraft:lava",
+    "block_to_transform": "minecraft:sand",
     "blocks_nearby": [
+        "minecraft:magma_block"
     ],
     "result": {
         "type": "block",

@@ -1,0 +1,13 @@
+{
+    "type": "flowing_block",
+    "flowing": "#minecraft:lava",
+    "blocks_nearby": [
+        "minecraft:wither_skeleton_skull",
+        "minecraft:creeper_head",
+        "minecraft:soul_sand"
+    ],
+    "result": {
+        "type": "function",
+        "function": "examplefluidmixin:summon_wither"
+    }
+}
