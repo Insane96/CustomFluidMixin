@@ -1,6 +1,7 @@
 # Changelog
 
-## Upcoming
+## 1.5.0
+* Requires InsaneLib 1.15.0
 * Changed `"result": "block"` to `"result": "blocks"`
   * `block` field has changed to `blocks`. Like before can be used as string specifying a block, or can be used as a list with weighted entries  
   This example makes the result have 50% chance to give stone and 50% to give cobblestone  

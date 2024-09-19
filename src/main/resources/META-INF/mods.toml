@@ -27,6 +27,6 @@ license="All rights reserved"
     [[dependencies.customfluidmixin]]
         modId="insanelib"
         mandatory=true
-        versionRange="[1.12.0,)"
+        versionRange="[1.15.0,)"
         ordering="NONE"
         side="BOTH"
