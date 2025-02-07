@@ -7,7 +7,7 @@
         "#minecraft:water"
     ],
     "result": {
-        "type": "blocks",
+        "type": "block",
         "blocks": [
             {
                 "block": "minecraft:stone",

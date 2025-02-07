@@ -40,10 +40,12 @@ public class CFM {
                 cfm.blockToTransform = context.deserialize(jObject.get("block_to_transform"), IdTagMatcher.class);
             }
             cfm.blocksNearby = context.deserialize(jObject.get("blocks_nearby"), IdTagMatcher.LIST_TYPE);
-            if (cfm.type == Type.FLOWING_MIXIN && cfm.blocksNearby.isEmpty())
-                throw new JsonParseException("Invalid blocks_nearby. There must be at least one block nearby when using \"flowing_block\"");
-            else if (cfm.blocksNearby.size() > 5)
-                throw new JsonParseException("Invalid blocks_nearby. There must at most 5 blocks");
+            if (cfm.type == Type.FLOWING_MIXIN) {
+                if (cfm.blocksNearby.isEmpty())
+                    throw new JsonParseException("Invalid blocks_nearby. There must be at least one block nearby when using \"flowing_block\"");
+                else if (cfm.blocksNearby.size() > 5)
+                    throw new JsonParseException("Invalid blocks_nearby. There must at most 5 blocks");
+            }
 
             cfm.result = context.deserialize(jObject.get("result"), MixinResult.class);
             cfm.fizz = GsonHelper.getAsBoolean(jObject, "fizz", true);

@@ -40,11 +40,11 @@ public class MixinResult {
             JsonObject jObject = json.getAsJsonObject();
             mixinResult.type = context.deserialize(jObject.get("type"), Type.class);
             switch (mixinResult.type) {
-                case BLOCKS -> {
-                    if (jObject.get("blocks").isJsonArray())
+                case BLOCK -> {
+                    if (jObject.get("block").isJsonArray())
                         mixinResult.blocks = context.deserialize(jObject.get("blocks"), BlockResult.LIST_TYPE);
                     else
-                        mixinResult.blocks = List.of(new BlockResult(ForgeRegistries.BLOCKS.getValue(context.deserialize(jObject.get("blocks"), ResourceLocation.class)).defaultBlockState(), 1));
+                        mixinResult.blocks = List.of(new BlockResult(ForgeRegistries.BLOCKS.getValue(context.deserialize(jObject.get("block"), ResourceLocation.class)).defaultBlockState(), 1));
                     if (mixinResult.blocks.isEmpty())
                         throw new JsonParseException("blocks must contain at least one entry");
                 }
@@ -64,7 +64,7 @@ public class MixinResult {
             JsonObject jObject = new JsonObject();
             jObject.add("type", context.serialize(mixinResult.type));
             switch (mixinResult.type) {
-                case BLOCKS -> jObject.add("blocks", context.serialize(mixinResult.blocks));
+                case BLOCK -> jObject.add("block", context.serialize(mixinResult.blocks));
                 case EXPLOSION -> {
                     jObject.addProperty("explosion_power", mixinResult.explosionPower);
                     if (mixinResult.shouldGenerateFire)
@@ -80,7 +80,7 @@ public class MixinResult {
 
     public static MixinResult newBlockResult(String block) {
         MixinResult m = new MixinResult();
-        m.type = Type.BLOCKS;
+        m.type = Type.BLOCK;
         m.blocks = List.of(new BlockResult(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(block)).defaultBlockState(), 1));
         return m;
     }
@@ -91,7 +91,7 @@ public class MixinResult {
             return;
 
         switch (this.type) {
-            case BLOCKS -> {
+            case BLOCK -> {
                 BlockResult randomBlockResult = this.getRandomBlockResult(level.random);
                 if (randomBlockResult == null) {
                     CustomFluidMixin.LOGGER.warn("No random block found for Custom Fluid Mixin");
@@ -116,8 +116,8 @@ public class MixinResult {
     }
 
     public enum Type {
-        @SerializedName("blocks")
-        BLOCKS,
+        @SerializedName("block")
+        BLOCK,
         @SerializedName("explosion")
         EXPLOSION,
         @SerializedName("function")
@@ -136,7 +136,7 @@ public class MixinResult {
             public BlockResult deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
                 JsonObject jObject = json.getAsJsonObject();
                 //TODO Change to deserialize the full state
-                return new BlockResult(ForgeRegistries.BLOCKS.getValue(context.deserialize(jObject.get("block"), ResourceLocation.class)).defaultBlockState(), GsonHelper.getAsInt(jObject, "weight"));
+                return new BlockResult(ForgeRegistries.BLOCKS.getValue(context.deserialize(jObject.get("block"), ResourceLocation.class)).defaultBlockState(), GsonHelper.getAsInt(jObject, "weight", 1));
             }
 
             @Override
