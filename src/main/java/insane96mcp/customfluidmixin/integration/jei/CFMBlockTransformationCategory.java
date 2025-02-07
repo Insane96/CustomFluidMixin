@@ -68,7 +68,7 @@ public class CFMBlockTransformationCategory implements IRecipeCategory<CFM> {
                 .addIngredients(VanillaTypes.ITEM_STACK, recipe.getBlockToTransformStacks())
                 .addIngredients(ForgeTypes.FLUID_STACK, recipe.getFluidToTransformStacks());
 
-        if (recipe.result.type == MixinResult.Type.BLOCKS) {
+        if (recipe.result.type == MixinResult.Type.BLOCK) {
             List<ItemStack> itemStacks = new ArrayList<>();
             for (MixinResult.BlockResult blockResult : recipe.result.blocks) {
                 itemStacks.add(new ItemStack(blockResult.getState().getBlock()));
@@ -77,23 +77,25 @@ public class CFMBlockTransformationCategory implements IRecipeCategory<CFM> {
                     .addItemStacks(itemStacks);
         }
 
-        List<IdTagMatcher> blocksNearby = recipe.blocksNearby;
-        int catalysts = 0;
-        for (IdTagMatcher blockNearby : blocksNearby) {
-            int x = 52 + (catalysts * 17) - (catalysts / 3 * 51);
-            int y = 8 + (catalysts / 3 * 18);
-            if (blocksNearby.size() <= 3)
-                y += 8;
-            builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
+        if (recipe.blocksNearby != null) {
+            List<IdTagMatcher> blocksNearby = recipe.blocksNearby;
+            int catalysts = 0;
+            for (IdTagMatcher blockNearby : blocksNearby) {
+                int x = 52 + (catalysts * 17) - (catalysts / 3 * 51);
+                int y = 8 + (catalysts / 3 * 18);
+                if (blocksNearby.size() <= 3)
+                    y += 8;
+                builder.addSlot(RecipeIngredientRole.CATALYST, x, y)
                         .addIngredients(ForgeTypes.FLUID_STACK, blockNearby.getAllFluidStacks())
                         .addItemStacks(blockNearby.getAllItemStacks());
-            catalysts++;
+                catalysts++;
+            }
         }
     }
 
     @Override
     public void draw(CFM recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        if (recipe.result.type != MixinResult.Type.BLOCKS) {
+        if (recipe.result.type != MixinResult.Type.BLOCK) {
             drawNonBlockResult(guiGraphics, recipe.result.type);
         }
     }

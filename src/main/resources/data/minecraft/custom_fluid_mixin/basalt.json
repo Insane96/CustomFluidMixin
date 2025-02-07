@@ -1,0 +1,13 @@
+{
+    "jei_only": true,
+    "type": "flowing_block",
+    "flowing": "#minecraft:lava",
+    "blocks_nearby": [
+        "minecraft:soul_soil",
+        "minecraft:blue_ice"
+    ],
+    "result": {
+        "type": "block",
+        "block": "minecraft:basalt"
+    }
+}

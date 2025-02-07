@@ -1,0 +1,10 @@
+{
+    "jei_only": true,
+    "type": "block_transform",
+    "flowing": "#minecraft:water",
+    "block_to_transform": "minecraft:lava",
+    "result": {
+        "type": "block",
+        "block": "minecraft:obsidian"
+    }
+}

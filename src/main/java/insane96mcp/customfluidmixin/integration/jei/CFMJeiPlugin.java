@@ -36,15 +36,6 @@ public class CFMJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new CFMBlockTransformationCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
-    private final CFM CFM_COBBLESTONE = CFM.createFlowingMixin("minecraft:lava",
-            List.of(
-                    new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:water"))),
-            "minecraft:cobblestone");
-    private final CFM CFM_BASALT = CFM.createFlowingMixin("minecraft:lava",
-            List.of(
-                    new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:soul_soil")),
-                    new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:blue_ice"))),
-            "minecraft:basalt");
     private final CFM CFM_OBSIDIAN = CFM.createBlockTransformation("minecraft:water",
             new IdTagMatcher(IdTagMatcher.Type.ID, new ResourceLocation("minecraft:lava")),
             List.of(),
@@ -57,13 +48,13 @@ public class CFMJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         ArrayList<CFM> fluidMixin = new ArrayList<>(CFMListener.INSTANCE.getFluidMixinList());
-        fluidMixin.add(CFM_COBBLESTONE);
-        fluidMixin.add(CFM_BASALT);
+        //fluidMixin.add(CFM_COBBLESTONE);
+        //fluidMixin.add(CFM_BASALT);
         registration.addRecipes(CFM_FLUID_MIXIN, fluidMixin);
 
         ArrayList<CFM> blockTransformation = new ArrayList<>(CFMListener.INSTANCE.getBlockTransformationList());
-        blockTransformation.add(CFM_OBSIDIAN);
-        blockTransformation.add(CFM_STONE);
+        //blockTransformation.add(CFM_OBSIDIAN);
+        //blockTransformation.add(CFM_STONE);
         registration.addRecipes(CFM_BLOCK_TRANSFORM, blockTransformation);
     }
 }

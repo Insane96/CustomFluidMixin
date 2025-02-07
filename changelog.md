@@ -1,9 +1,12 @@
 # Changelog
 
-## 1.5.2
+## 1.6.0
 * Added a `jei_only` field
   * If true the transformation will only show on JEI and not happen in the world  
     Useful if the transformation is already added by other mods and you want to add the mixin to JEI
+  * Vanilla transformations are no longer hardcoded but included in the mod's data pack
+* Renamed result type `blocks` to `block`
+  * For a single block the field is now `block` instead of `blocks`
 
 ## 1.5.1
 * Fixed crash with non `blocks` results

@@ -63,7 +63,7 @@ public class CFMFluidMixinCategory implements IRecipeCategory<CFM> {
         builder.addSlot(RecipeIngredientRole.INPUT, 7, 17)
                 .addIngredients(ForgeTypes.FLUID_STACK, recipe.getFlowingStacks());
 
-        if (recipe.result.type == MixinResult.Type.BLOCKS) {
+        if (recipe.result.type == MixinResult.Type.BLOCK) {
             List<ItemStack> itemStacks = new ArrayList<>();
             for (MixinResult.BlockResult blockResult : recipe.result.blocks) {
                 itemStacks.add(new ItemStack(blockResult.getState().getBlock()));
@@ -88,7 +88,7 @@ public class CFMFluidMixinCategory implements IRecipeCategory<CFM> {
 
     @Override
     public void draw(CFM recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        if (recipe.result.type != MixinResult.Type.BLOCKS) {
+        if (recipe.result.type != MixinResult.Type.BLOCK) {
             drawNonBlockResult(guiGraphics, recipe.result.type);
         }
     }

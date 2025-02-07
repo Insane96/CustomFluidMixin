@@ -1,0 +1,12 @@
+{
+    "jei_only": true,
+    "type": "flowing_block",
+    "flowing": "#minecraft:lava",
+    "blocks_nearby": [
+        "#minecraft:water"
+    ],
+    "result": {
+        "type": "block",
+        "block": "minecraft:cobblestone"
+    }
+}
