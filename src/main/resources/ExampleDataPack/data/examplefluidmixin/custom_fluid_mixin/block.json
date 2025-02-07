@@ -10,12 +10,12 @@
         "type": "blocks",
         "blocks": [
             {
-                "block": "minecraft:diamond_ore",
-                "weight": 1
+                "block": "minecraft:stone",
+                "weight": 4
             },
             {
-                "block": "minecraft:stone",
-                "weight": 2
+                "block": "minecraft:diamond_ore",
+                "weight": 1
             }
         ]
     }

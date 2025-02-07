@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
+import insane96mcp.customfluidmixin.CustomFluidMixin;
 import insane96mcp.insanelib.util.weightedrandom.IWeightedRandom;
 import insane96mcp.insanelib.util.weightedrandom.WeightedRandom;
 import net.minecraft.commands.CommandFunction;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +32,6 @@ public class MixinResult {
     public float chance;
     public List<BlockResult> blocks;
     public CommandFunction.CacheableFunction function;
-
-    private BlockResult _resultCache = null;
 
     public static class Serializer implements JsonDeserializer<MixinResult>, JsonSerializer<MixinResult> {
         @Override
@@ -87,12 +87,18 @@ public class MixinResult {
 
     public void execute(ServerLevel level, BlockPos pos) {
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-        if (level.getRandom().nextFloat() > this.chance || this._resultCache == null)
+        if (level.getRandom().nextFloat() > this.chance)
             return;
 
         switch (this.type) {
-            case BLOCKS ->
-                    level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, this._resultCache.getBlock()));
+            case BLOCKS -> {
+                BlockResult randomBlockResult = this.getRandomBlockResult(level.random);
+                if (randomBlockResult == null) {
+                    CustomFluidMixin.LOGGER.warn("No random block found for Custom Fluid Mixin");
+                    break;
+                }
+                level.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(level, pos, pos, randomBlockResult.getState()));
+            }
             case EXPLOSION ->
                     level.explode(null, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, explosionPower, this.shouldGenerateFire, Level.ExplosionInteraction.BLOCK);
             case FUNCTION -> {
@@ -102,9 +108,11 @@ public class MixinResult {
         }
     }
 
+    @Nullable
     public BlockResult getRandomBlockResult(RandomSource random) {
-        this._resultCache = WeightedRandom.getRandomItem(random, this.blocks);
-        return this._resultCache;
+        if (this.blocks == null || this.blocks.isEmpty())
+            return null;
+        return WeightedRandom.getRandomItem(random, this.blocks);
     }
 
     public enum Type {
@@ -145,7 +153,7 @@ public class MixinResult {
             this.weight = weight;
         }
 
-        public BlockState getBlock() {
+        public BlockState getState() {
             return block;
         }
 

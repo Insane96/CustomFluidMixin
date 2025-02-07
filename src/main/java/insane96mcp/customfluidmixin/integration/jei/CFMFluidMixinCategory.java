@@ -66,7 +66,7 @@ public class CFMFluidMixinCategory implements IRecipeCategory<CFM> {
         if (recipe.result.type == MixinResult.Type.BLOCKS) {
             List<ItemStack> itemStacks = new ArrayList<>();
             for (MixinResult.BlockResult blockResult : recipe.result.blocks) {
-                itemStacks.add(new ItemStack(blockResult.getBlock().getBlock()));
+                itemStacks.add(new ItemStack(blockResult.getState().getBlock()));
             }
             builder.addSlot(RecipeIngredientRole.OUTPUT, 141, 18)
                     .addItemStacks(itemStacks);

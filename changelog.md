@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.1
+* Fixed crash with non `blocks` results
+
 ## 1.5.0
 * Requires InsaneLib 1.15.0
 * Changed `"result": "block"` to `"result": "blocks"`

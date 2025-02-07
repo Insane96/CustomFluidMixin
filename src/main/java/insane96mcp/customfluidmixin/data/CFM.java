@@ -146,7 +146,6 @@ public class CFM {
         if (!blocksNearbyMatch)
             return false;
 
-        cfm.result.getRandomBlockResult(level.random).getBlock();
         cfm.result.execute((ServerLevel) level, pos);
         if (cfm.fizz)
             level.levelEvent(1501, pos, 0);
@@ -165,7 +164,7 @@ public class CFM {
         //For each flowing direction (everywhere but up)
         for (Direction fluidDirection : LiquidBlock.POSSIBLE_FLOW_DIRECTIONS) {
             BlockPos posFluidDirection = pos.relative(fluidDirection);
-            BlockState newState = cfm.result.getRandomBlockResult(level.random).getBlock();
+            BlockState newState = cfm.result.getRandomBlockResult(level.random).getState();
             //If the fluid doesn't match
             if ((level.getFluidState(posFluidDirection).getType() != Fluids.EMPTY && !cfm.blockToTransform.matchesFluid(level.getFluidState(posFluidDirection).getType()))
                     // Or the block to transform doesn't match
