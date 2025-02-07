@@ -20,6 +20,7 @@ import java.util.List;
 
 @JsonAdapter(CFM.Serializer.class)
 public class CFM {
+    public boolean jeiOnly;
     public Type type;
     public MixinResult result;
     public boolean fizz;
@@ -32,6 +33,7 @@ public class CFM {
         public CFM deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             CFM cfm = new CFM();
             JsonObject jObject = json.getAsJsonObject();
+            cfm.jeiOnly = GsonHelper.getAsBoolean(jObject, "jei_only", false);
             cfm.type = context.deserialize(jObject.get("type"), Type.class);
             cfm.flowing = context.deserialize(jObject.get("flowing"), IdTagMatcher.class);
             if (cfm.type == Type.BLOCK_TRANSFORM) {
@@ -52,6 +54,8 @@ public class CFM {
         @Override
         public JsonElement serialize(CFM cfm, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
             JsonObject jObject = new JsonObject();
+            if (cfm.jeiOnly)
+                jObject.addProperty("jei_only", true);
             jObject.add("type", context.serialize(cfm.type));
             jObject.add("flowing", context.serialize(cfm.flowing));
             if (cfm.type == Type.BLOCK_TRANSFORM)
@@ -108,7 +112,7 @@ public class CFM {
 
     @Override
     public String toString() {
-        return String.format("CFM[type: %s, flowing: %s, block_to_transform: %s, blocks_nearby: %s, result: %s, fizz: %s]", this.type, this.flowing, this.blockToTransform, this.blocksNearby, this.result, this.fizz);
+        return String.format("CFM[type: %s, flowing: %s, block_to_transform: %s, blocks_nearby: %s, result: %s, fizz: %s, jei_only: %s]", this.type, this.flowing, this.blockToTransform, this.blocksNearby, this.result, this.fizz, this.jeiOnly);
     }
 
     public enum Type {
@@ -122,9 +126,9 @@ public class CFM {
      * Returns true if a mixin has been successful and shouldn't keep executing vanilla code
      */
     public static boolean fluidMixin(CFM cfm, Level level, BlockState state, BlockPos pos) {
-        if (cfm.type != CFM.Type.FLOWING_MIXIN)
-            return false;
-        if (!cfm.flowing.matchesFluid(state.getFluidState().getType()))
+        if (cfm.jeiOnly
+                || cfm.type != Type.FLOWING_MIXIN
+                || !cfm.flowing.matchesFluid(state.getFluidState().getType()))
             return false;
 
         boolean blocksNearbyMatch = true;
@@ -156,9 +160,9 @@ public class CFM {
      * Returns true if a mixin has been successful and shouldn't keep executing vanilla code
      */
     public static void blockTransformation(CFM cfm, Level level, BlockState state, BlockPos pos) {
-        if (cfm.type != CFM.Type.BLOCK_TRANSFORM)
-            return;
-        if (!cfm.flowing.matchesFluid(state.getFluidState().getType()))
+        if (cfm.jeiOnly
+                || cfm.type != Type.BLOCK_TRANSFORM
+                || !cfm.flowing.matchesFluid(state.getFluidState().getType()))
             return;
 
         //For each flowing direction (everywhere but up)

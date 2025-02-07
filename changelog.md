@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.2
+* Added a `jei_only` field
+  * If true the transformation will only show on JEI and not happen in the world  
+    Useful if the transformation is already added by other mods and you want to add the mixin to JEI
+
 ## 1.5.1
 * Fixed crash with non `blocks` results
 
