@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.1
+* Fixed `block` result not working
+
 ## 1.6.0
 * Added a `jei_only` field
   * If true the transformation will only show on JEI and not happen in the world  

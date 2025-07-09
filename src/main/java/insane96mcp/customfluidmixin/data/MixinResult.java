@@ -41,10 +41,10 @@ public class MixinResult {
             mixinResult.type = context.deserialize(jObject.get("type"), Type.class);
             switch (mixinResult.type) {
                 case BLOCK -> {
-                    if (jObject.get("block").isJsonArray())
+                    if (jObject.has("blocks") && jObject.get("blocks").isJsonArray())
                         mixinResult.blocks = context.deserialize(jObject.get("blocks"), BlockResult.LIST_TYPE);
                     else
-                        mixinResult.blocks = List.of(new BlockResult(ForgeRegistries.BLOCKS.getValue(context.deserialize(jObject.get("block"), ResourceLocation.class)).defaultBlockState(), 1));
+                        mixinResult.blocks = List.of(new BlockResult(GsonHelper.getAsString(jObject, "block"), 1));
                     if (mixinResult.blocks.isEmpty())
                         throw new JsonParseException("blocks must contain at least one entry");
                 }
@@ -81,7 +81,7 @@ public class MixinResult {
     public static MixinResult newBlockResult(String block) {
         MixinResult m = new MixinResult();
         m.type = Type.BLOCK;
-        m.blocks = List.of(new BlockResult(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(block)).defaultBlockState(), 1));
+        m.blocks = List.of(new BlockResult(block, 1));
         return m;
     }
 
@@ -150,6 +150,11 @@ public class MixinResult {
 
         public BlockResult(BlockState block, int weight) {
             this.block = block;
+            this.weight = weight;
+        }
+
+        public BlockResult(String block, int weight) {
+            this.block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(block)).defaultBlockState();
             this.weight = weight;
         }
 
