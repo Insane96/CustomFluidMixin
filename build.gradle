@@ -96,6 +96,9 @@ dependencies {
 
     implementation fg.deobf("blank:InsaneLib:${lib_version}-mc${mc_version}")
 
+    runtimeOnly fg.deobf("slimeknights.mantle:Mantle:${mc_version}-1.11.36")
+    runtimeOnly fg.deobf("slimeknights.tconstruct:TConstruct:${mc_version}-3.9.1.19")
+
   // compile against the JEI API but do not include it at runtime
   compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
   compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
